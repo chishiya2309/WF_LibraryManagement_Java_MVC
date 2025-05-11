@@ -30,7 +30,7 @@ public class DashboardDAO {
             }
             DatabaseConnection.closeResources(rs, pstmt);
 
-            // Lấy tổng số thành viên đang hoạt động
+            // Lấy tổng số thành viên
             query = "SELECT COUNT(*) FROM ThanhVien";
             pstmt = conn.prepareStatement(query);
             rs = pstmt.executeQuery();
@@ -39,7 +39,7 @@ public class DashboardDAO {
             }
             DatabaseConnection.closeResources(rs, pstmt);
 
-            // Lấy tổng số nhân viên đang làm việc
+            // Lấy tổng số nhân viên
             query = "SELECT COUNT(*) FROM NhanVien";
             pstmt = conn.prepareStatement(query);
             rs = pstmt.executeQuery();
