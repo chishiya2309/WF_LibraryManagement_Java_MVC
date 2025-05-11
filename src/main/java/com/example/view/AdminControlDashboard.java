@@ -1,5 +1,8 @@
 package com.example.view;
 
+import com.example.controller.DashboardController;
+import com.example.model.DashboardStatistics;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -66,6 +69,9 @@ public class AdminControlDashboard extends JPanel {
 
     // Timer for auto refresh
     private javax.swing.Timer refreshTimer;
+    
+    // Controller
+    private DashboardController controller;
 
     public AdminControlDashboard() {
         setLayout(new BorderLayout());
@@ -75,6 +81,9 @@ public class AdminControlDashboard extends JPanel {
 
         statsPanel.setPreferredSize(new Dimension(dashboardPanel.getWidth() - 40, 243));
         statusPanel.setPreferredSize(new Dimension(dashboardPanel.getWidth() - 40, 200));
+        
+        // Khởi tạo controller
+        controller = new DashboardController(this);
 
         refreshTimer = new javax.swing.Timer(60000, e -> refreshDashboardData());
         refreshTimer.start();
@@ -127,32 +136,32 @@ public class AdminControlDashboard extends JPanel {
         cardBook = createCardPanel();
         colorBarBook = createColorBar(PURPLE);
         cardTitleBook = createCardTitleLabel("Tổng số sách khả dụng");
-        lblSachKhaDung = createValueLabel("12");
+        lblSachKhaDung = createValueLabel("0");
 
         cardLib = createCardPanel();
         colorBarLib = createColorBar(BLUE);
         cardTitleBookLib = createCardTitleLabel("Tổng số nhân viên");
-        lblNhanVien = createValueLabel("12");
+        lblNhanVien = createValueLabel("0");
 
         cardCus = createCardPanel();
         colorBarCus = createColorBar(GREEN);
         cardTitleCus = createCardTitleLabel("Thành viên đăng ký");
-        lblThanhVien = createValueLabel("852");
+        lblThanhVien = createValueLabel("0");
 
         cardBookBorrow = createCardPanel();
         colorBarBookBorrow = createColorBar(RED);
         cardTitleBookBorrow = createCardTitleLabel("Sách mượn hôm nay");
-        lblSachMuonHomNay = createValueLabel("24");
+        lblSachMuonHomNay = createValueLabel("0");
 
         panel1 = createCardPanel();
         panel2 = createColorBar(ORANGE);
         label2 = createCardTitleLabel("Sách trả hôm nay");
-        lblSachTraHomNay = createValueLabel("18");
+        lblSachTraHomNay = createValueLabel("0");
 
         panel3 = createCardPanel();
         panel4 = createColorBar(PINK);
         label4 = createCardTitleLabel("Sách quá hạn");
-        lblSachQuaHan = createValueLabel("28");
+        lblSachQuaHan = createValueLabel("0");
     }
 
     private JPanel createCardPanel() {
@@ -251,22 +260,27 @@ public class AdminControlDashboard extends JPanel {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String currentTime = dateFormat.format(new Date());
         backupLabel.setText("Cập nhật lần cuối: " + currentTime);
+        
+        // Lấy dữ liệu thống kê từ controller
+        if (controller != null) {
+            controller.loadDashboardData();
+        }
     }
 
     private void refreshDashboardData() {
         loadDashboardData();
-
-        int availableBooks = 10 + (int)(Math.random() * 10);
-        lblSachKhaDung.setText(String.valueOf(availableBooks));
-
-        int borrowedToday = 20 + (int)(Math.random() * 10);
-        lblSachMuonHomNay.setText(String.valueOf(borrowedToday));
-
-        int returnedToday = 15 + (int)(Math.random() * 10);
-        lblSachTraHomNay.setText(String.valueOf(returnedToday));
-
         revalidate();
         repaint();
+    }
+    
+    // Phương thức này được DashboardController gọi để cập nhật UI với dữ liệu thực
+    public void updateStatistics(DashboardStatistics stats) {
+        lblSachKhaDung.setText(String.valueOf(stats.getTotalAvailableBooks()));
+        lblNhanVien.setText(String.valueOf(stats.getTotalStaff()));
+        lblThanhVien.setText(String.valueOf(stats.getTotalMembers()));
+        lblSachMuonHomNay.setText(String.valueOf(stats.getBooksBorrowedToday()));
+        lblSachTraHomNay.setText(String.valueOf(stats.getBooksReturnedToday()));
+        lblSachQuaHan.setText(String.valueOf(stats.getOverDueBooks()));
     }
 
     private void handleResize() {
@@ -285,32 +299,5 @@ public class AdminControlDashboard extends JPanel {
         if (refreshTimer != null) {
             refreshTimer.stop();
         }
-    }
-
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Dashboard");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(700, 650);
-
-            AdminControlDashboard dashboard = new AdminControlDashboard();
-            frame.add(dashboard);
-
-            frame.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    dashboard.cleanup();
-                }
-            });
-
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-        });
     }
 }
