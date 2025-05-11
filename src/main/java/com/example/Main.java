@@ -1,12 +1,8 @@
 package com.example;
 
-import com.example.view.FormDangNhap;
+import com.example.view.LoginForm;
 
 import javax.swing.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,7 +16,7 @@ public class Main {
         // Create and display the form
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new FormDangNhap().setVisible(true);
+                new LoginForm().setVisible(true);
             }
         });
     }

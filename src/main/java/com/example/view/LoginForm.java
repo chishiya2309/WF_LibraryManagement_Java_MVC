@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.prefs.Preferences;
 
-public class FormDangNhap extends JFrame {
+public class LoginForm extends JFrame {
     // Components
     private JPanel mainPanel;
     private JPanel headerPanel;
@@ -36,7 +36,7 @@ public class FormDangNhap extends JFrame {
     // Preferences for storing user credentials
     private Preferences prefs;
 
-    public FormDangNhap() {
+    public LoginForm() {
         // Set up the frame
         setTitle("Library Management System");
         setSize(900, 661);
@@ -45,7 +45,7 @@ public class FormDangNhap extends JFrame {
         setLocationRelativeTo(null);
 
         // Initialize preferences
-        prefs = Preferences.userNodeForPackage(FormDangNhap.class);
+        prefs = Preferences.userNodeForPackage(LoginForm.class);
 
         // Initialize components
         initComponents();
@@ -248,8 +248,8 @@ public class FormDangNhap extends JFrame {
         forgotPasswordLink.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                JOptionPane.showMessageDialog(FormDangNhap.this,
-                        "Vui long lien he voi quan tri vien he thong de dat lai mat khau cua ban.",
+                JOptionPane.showMessageDialog(LoginForm.this,
+                        "Vui lòng liên hệ với quản trị viên hệ thống để đặt lại mật khẩu của bạn.",
                         "Forgot Password",
                         JOptionPane.INFORMATION_MESSAGE);
             }
@@ -303,11 +303,12 @@ public class FormDangNhap extends JFrame {
                     "Thành công",
                     JOptionPane.INFORMATION_MESSAGE);
 
-            // Here you would open the main form
-            // For example: MainForm mainForm = new MainForm();
-            // mainForm.setVisible(true);
-            
-            this.setVisible(false);
+            // Mở form chính
+            AdminMainForm adminForm = new AdminMainForm();
+            adminForm.setVisible(true);
+
+            // Ẩn form đăng nhập
+            this.dispose(); // hoặc this.setVisible(false);
         } else {
             errorLabel.setText("<html>ID nhân viên hoặc mật khẩu không chính xác.<br/> Vui lòng thử lại!</html>");
         }
@@ -355,21 +356,5 @@ public class FormDangNhap extends JFrame {
         // Repaint and revalidate the components
         revalidate();
         repaint();
-    }
-
-    public static void main(String[] args) {
-        // Set the look and feel to system default
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Create and display the form
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new FormDangNhap().setVisible(true);
-            }
-        });
     }
 } 
