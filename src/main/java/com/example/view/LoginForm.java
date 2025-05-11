@@ -52,9 +52,6 @@ public class LoginForm extends JFrame {
 
         // Add components to the frame
         layoutComponents();
-
-        // Add event listeners
-        addEventListeners();
         
         // Load saved credentials if any
         loadSavedCredentials();
@@ -225,46 +222,35 @@ public class LoginForm extends JFrame {
         add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private void addEventListeners() {
-        // Add action listener to login button
-        btnLogin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                login();
-            }
-        });
+    public JButton getBtnLogin() {
+        return btnLogin;
+    }
 
-        // Add key listener to password field
-        txtPassword.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    login();
-                }
-            }
-        });
+    public JTextField getTxtUsername() {
+        return txtUsername;
+    }
 
-        // Add mouse listener to forgot password link
-        forgotPasswordLink.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                JOptionPane.showMessageDialog(LoginForm.this,
-                        "Vui lòng liên hệ với quản trị viên hệ thống để đặt lại mật khẩu của bạn.",
-                        "Forgot Password",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
+    public JPasswordField getTxtPassword() {
+        return txtPassword;
+    }
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                forgotPasswordLink.setText("<html><u>Forgot Password?</u></html>");
-            }
+    public JLabel getErrorLabel() {
+        return errorLabel;
+    }
+    
+    public JCheckBox getRememberMeCheckBox() {
+        return rememberMeCheckBox;
+    }
+    
+    public Preferences getPreferences() {
+        return prefs;
+    }
+    
+    public JLabel getForgotPasswordLink() {
+        return forgotPasswordLink;
+    }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                forgotPasswordLink.setText("Forgot Password?");
-            }
-        });
-
+    public void addEventListeners() {
         // Add window listener to handle form closing
         addWindowListener(new WindowAdapter() {
             @Override
@@ -281,57 +267,18 @@ public class LoginForm extends JFrame {
             }
         });
     }
-
-    private void login() {
-        String username = txtUsername.getText().trim();
-        String password = new String(txtPassword.getPassword());
-
-        if (username.isEmpty() || password.isEmpty()) {
-            errorLabel.setText("Vui lòng nhập đầy đủ mã nhân viên và mật khẩu!");
-            return;
-        }
-
-        if (authenticateLibraryStaff(username, password)) {
-            if (rememberMeCheckBox.isSelected()) {
-                saveStaffCredentials(username);
-            } else {
-                clearSavedCredentials();
-            }
-
-            JOptionPane.showMessageDialog(this,
-                    "Đăng nhập thành công! Chào mừng đến với hệ thống quản lý thư viện.",
-                    "Thành công",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            // Mở form chính
-            AdminMainForm adminForm = new AdminMainForm();
-            adminForm.setVisible(true);
-
-            // Ẩn form đăng nhập
-            this.dispose(); // hoặc this.setVisible(false);
-        } else {
-            errorLabel.setText("<html>ID nhân viên hoặc mật khẩu không chính xác.<br/> Vui lòng thử lại!</html>");
-        }
-    }
-
     
-    private boolean authenticateLibraryStaff(String staffId, String password) {
-        // This is a simple authentication for demonstration
-        // In a real application, you would connect to a database
-        return (staffId.equals("admin") && password.equals("admin"));
-    }
-    
-    private void saveStaffCredentials(String staffId) {
+    public void saveStaffCredentials(String staffId) {
         prefs.put("lastUsername", staffId);
         prefs.putBoolean("rememberMe", true);
     }
     
-    private void clearSavedCredentials() {
+    public void clearSavedCredentials() {
         prefs.put("lastUsername", "");
         prefs.putBoolean("rememberMe", false);
     }
     
-    private void loadSavedCredentials() {
+    public void loadSavedCredentials() {
         if (prefs.getBoolean("rememberMe", false)) {
             txtUsername.setText(prefs.get("lastUsername", ""));
             rememberMeCheckBox.setSelected(true);

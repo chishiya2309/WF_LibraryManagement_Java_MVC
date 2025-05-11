@@ -1,7 +1,6 @@
 package com.example.view;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -61,11 +60,8 @@ public class AdminMainForm extends JFrame {
         initMenuMapping();
 
         // Set dashboard as active by default
-        setActiveButton(btnDashboard);
-        loadPanel(menuMapping.get(btnDashboard));
-
-        // Add event listeners
-        addEventListeners();
+        setActiveButtonStatus(btnDashboard);
+        loadPanelContent(menuMapping.get(btnDashboard));
     }
 
     private void initComponents() {
@@ -241,44 +237,46 @@ public class AdminMainForm extends JFrame {
         menuMapping.put(btnLoanAndReturn, new AdminControlLoanAndReturn());
         menuMapping.put(btnReports, new AdminControlReports());
     }
-
-    private void addEventListeners() {
-        // Add action listeners to buttons
-        btnDashboard.addActionListener(e -> handleMenuClick(btnDashboard));
-        btnBooks.addActionListener(e -> handleMenuClick(btnBooks));
-        btnCategories.addActionListener(e -> handleMenuClick(btnCategories));
-        btnMembers.addActionListener(e -> handleMenuClick(btnMembers));
-        btnStaff.addActionListener(e -> handleMenuClick(btnStaff));
-        btnLoanAndReturn.addActionListener(e -> handleMenuClick(btnLoanAndReturn));
-        btnReports.addActionListener(e -> handleMenuClick(btnReports));
-        btnLogout.addActionListener(e -> logout());
-
-        // Add window listener
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                handleFormClosing();
-            }
-        });
-
-        // Add component listener for resize events
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                handleResize();
-            }
-        });
+    
+    // Getters for buttons
+    public JButton getBtnDashboard() {
+        return btnDashboard;
     }
-
-    private void handleMenuClick(JButton clickedButton) {
-        // Set the active button
-        setActiveButton(clickedButton);
-
-        // Load the corresponding panel
-        loadPanel(menuMapping.get(clickedButton));
+    
+    public JButton getBtnBooks() {
+        return btnBooks;
     }
-
-    private void setActiveButton(JButton button) {
+    
+    public JButton getBtnCategories() {
+        return btnCategories;
+    }
+    
+    public JButton getBtnMembers() {
+        return btnMembers;
+    }
+    
+    public JButton getBtnStaff() {
+        return btnStaff;
+    }
+    
+    public JButton getBtnLoanAndReturn() {
+        return btnLoanAndReturn;
+    }
+    
+    public JButton getBtnReports() {
+        return btnReports;
+    }
+    
+    public JButton getBtnLogout() {
+        return btnLogout;
+    }
+    
+    public Map<JButton, JPanel> getMenuMapping() {
+        return menuMapping;
+    }
+    
+    // Methods that were previously private but now need to be called from Controller
+    public void setActiveButtonStatus(JButton button) {
         // Reset previous active button
         if (activeButton != null) {
             activeButton.setBackground(DARK_GRAY);
@@ -289,7 +287,7 @@ public class AdminMainForm extends JFrame {
         activeButton.setBackground(PURPLE);
     }
 
-    private void loadPanel(JPanel panel) {
+    public void loadPanelContent(JPanel panel) {
         // Clear the content panel
         contentPanel.removeAll();
 
@@ -302,32 +300,6 @@ public class AdminMainForm extends JFrame {
         // Refresh the content panel
         contentPanel.revalidate();
         contentPanel.repaint();
-    }
-
-    private void logout() {
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                "Bạn có chắc muốn đăng xuất?",
-                "Xác nhận",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (result == JOptionPane.YES_OPTION) {
-            // Close this form and open login form
-            dispose();
-            new LoginForm().setVisible(true);
-        }
-    }
-
-    private void handleFormClosing() {
-        // Handle form closing logic
-        System.exit(0);
-    }
-
-    private void handleResize() {
-        // Adjust components if needed
-        revalidate();
     }
 
     // Helper method to create a circular avatar
@@ -431,25 +403,6 @@ public class AdminMainForm extends JFrame {
             titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
 
             add(titleLabel, BorderLayout.NORTH);
-        }
-    }
-
-    // Login form class
-    private class LoginForm extends JFrame {
-        public LoginForm() {
-            setTitle("Library Management System - Login");
-            setSize(400, 300);
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            setLocationRelativeTo(null);
-
-            JPanel panel = new JPanel(new GridBagLayout());
-            panel.setBackground(WHITE);
-
-            JLabel label = new JLabel("Login Form");
-            label.setFont(new Font("Segoe UI", Font.BOLD, 18));
-
-            panel.add(label);
-            add(panel);
         }
     }
 

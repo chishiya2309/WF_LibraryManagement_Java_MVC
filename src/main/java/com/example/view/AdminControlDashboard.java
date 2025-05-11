@@ -92,6 +92,7 @@ public class AdminControlDashboard extends JPanel {
     private void initComponents() {
         dashboardPanel = new JPanel(new BorderLayout());
         dashboardPanel.setBackground(WHITE);
+        dashboardPanel.setSize(634, 633);
 
         titleLabel = new JLabel("Dashboard");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -104,7 +105,7 @@ public class AdminControlDashboard extends JPanel {
         systemStatusLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         statusPanel = new JPanel();
-        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
+        statusPanel.setLayout(new BorderLayout());
         statusPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         statusPanel.setBackground(WHITE);
 
@@ -220,7 +221,7 @@ public class AdminControlDashboard extends JPanel {
         statusContentPanel.add(Box.createRigidArea(new Dimension(0, 40)));
         statusContentPanel.add(versionLabel);
 
-        statusPanel.add(statusContentPanel);
+        statusPanel.add(statusContentPanel, BorderLayout.CENTER);
 
         centerPanel.add(statsPanel);
         centerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
