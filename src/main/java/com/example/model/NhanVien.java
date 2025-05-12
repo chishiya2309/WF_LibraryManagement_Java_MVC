@@ -3,90 +3,90 @@ package com.example.model;
 import java.sql.Date;
 
 public class NhanVien {
-    private String ID;
-    private String HoTen;
-    private String GioiTinh;
-    private String ChucVu;
-    private String Email;
-    private String SoDienThoai;
-    private Date NgayVaoLam;
-    private String TrangThai;
+    private String id;
+    private String hoTen;
+    private String gioiTinh;
+    private String chucVu;
+    private String email;
+    private String soDienThoai;
+    private Date ngayVaoLam;
+    private String trangThai;
 
     public NhanVien() {
     }
 
-    public NhanVien(String ID, String hoTen, String gioiTinh, String chucVu, String email, String soDienThoai, Date ngayVaoLam, String trangThai) {
-        this.ID = ID;
-        this.HoTen = hoTen;
-        this.GioiTinh = gioiTinh;
-        this.ChucVu = chucVu;
-        this.Email = email;
-        this.SoDienThoai = soDienThoai;
-        this.NgayVaoLam = ngayVaoLam;
-        this.TrangThai = trangThai;
+    public NhanVien(String id, String hoTen, String gioiTinh, String chucVu, String email, String soDienThoai, Date ngayVaoLam, String trangThai) {
+        this.id = id;
+        this.hoTen = hoTen;
+        this.gioiTinh = gioiTinh;
+        this.chucVu = chucVu;
+        this.email = email;
+        this.soDienThoai = soDienThoai;
+        this.ngayVaoLam = ngayVaoLam;
+        this.trangThai = trangThai;
     }
 
-    public String getID() {
-        return ID;
+    public String getId() {
+        return id;
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getHoTen() {
-        return HoTen;
+        return hoTen;
     }
 
     public void setHoTen(String hoTen) {
-        HoTen = hoTen;
+        this.hoTen = hoTen;
     }
 
     public String getGioiTinh() {
-        return GioiTinh;
+        return gioiTinh;
     }
 
     public void setGioiTinh(String gioiTinh) {
-        GioiTinh = gioiTinh;
+        this.gioiTinh = gioiTinh;
     }
 
     public String getChucVu() {
-        return ChucVu;
+        return chucVu;
     }
 
     public void setChucVu(String chucVu) {
-        ChucVu = chucVu;
+        this.chucVu = chucVu;
     }
 
     public String getEmail() {
-        return Email;
+        return email;
     }
 
     public void setEmail(String email) {
-        Email = email;
+        this.email = email;
     }
 
     public String getSoDienThoai() {
-        return SoDienThoai;
+        return soDienThoai;
     }
 
     public void setSoDienThoai(String soDienThoai) {
-        SoDienThoai = soDienThoai;
+        this.soDienThoai = soDienThoai;
     }
 
     public Date getNgayVaoLam() {
-        return NgayVaoLam;
+        return ngayVaoLam;
     }
 
     public void setNgayVaoLam(Date ngayVaoLam) {
-        NgayVaoLam = ngayVaoLam;
+        this.ngayVaoLam = ngayVaoLam;
     }
 
     public String getTrangThai() {
-        return TrangThai;
+        return trangThai;
     }
 
     public void setTrangThai(String trangThai) {
-        TrangThai = trangThai;
+        this.trangThai = trangThai;
     }
 }
