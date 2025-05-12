@@ -3,100 +3,101 @@ package com.example.model;
 import java.util.Date;
 
 public class DanhMucSach {
-    private String MaDanhMuc;
-    private String TenDanhMuc;
-    private String MoTa;
-    private String DanhMucCha;
-    private int SoLuongSach;
-    private Date NgayTao;
-    private Date CapNhatLanCuoi;
-    private String TrangThai;
+    private String maDanhMuc;
+    private String tenDanhMuc;
+    private String moTa;
+    private String danhMucCha;
+    private int soLuongSach;
+    private Date ngayTao;
+    private Date capNhatLanCuoi;
+    private String trangThai;
 
     public DanhMucSach() {
     }
 
-    public DanhMucSach(String maDanhMuc, String tenDanhMuc, String moTa, String danhMucCha, int soLuongSach, Date ngayTao, Date capNhatLanCuoi, String trangThai) {
-        MaDanhMuc = maDanhMuc;
-        TenDanhMuc = tenDanhMuc;
-        MoTa = moTa;
-        DanhMucCha = danhMucCha;
-        SoLuongSach = soLuongSach;
-        NgayTao = ngayTao;
-        CapNhatLanCuoi = capNhatLanCuoi;
-        TrangThai = trangThai;
+    public DanhMucSach(String maDanhMuc, String tenDanhMuc) {
+        this.maDanhMuc = maDanhMuc;
+        this.tenDanhMuc = tenDanhMuc;
     }
 
-    public DanhMucSach(String maDanhMuc, String tenDanhMuc) {
-        MaDanhMuc = maDanhMuc;
-        TenDanhMuc = tenDanhMuc;
+    public DanhMucSach(String maDanhMuc, String tenDanhMuc, String moTa, String danhMucCha, 
+                       int soLuongSach, Date ngayTao, Date capNhatLanCuoi, String trangThai) {
+        this.maDanhMuc = maDanhMuc;
+        this.tenDanhMuc = tenDanhMuc;
+        this.moTa = moTa;
+        this.danhMucCha = danhMucCha;
+        this.soLuongSach = soLuongSach;
+        this.ngayTao = ngayTao;
+        this.capNhatLanCuoi = capNhatLanCuoi;
+        this.trangThai = trangThai;
     }
 
     public String getMaDanhMuc() {
-        return MaDanhMuc;
+        return maDanhMuc;
     }
 
     public void setMaDanhMuc(String maDanhMuc) {
-        MaDanhMuc = maDanhMuc;
+        this.maDanhMuc = maDanhMuc;
     }
 
     public String getTenDanhMuc() {
-        return TenDanhMuc;
+        return tenDanhMuc;
     }
 
     public void setTenDanhMuc(String tenDanhMuc) {
-        TenDanhMuc = tenDanhMuc;
+        this.tenDanhMuc = tenDanhMuc;
     }
 
     public String getMoTa() {
-        return MoTa;
+        return moTa;
     }
 
     public void setMoTa(String moTa) {
-        MoTa = moTa;
+        this.moTa = moTa;
     }
 
     public String getDanhMucCha() {
-        return DanhMucCha;
+        return danhMucCha;
     }
 
     public void setDanhMucCha(String danhMucCha) {
-        DanhMucCha = danhMucCha;
+        this.danhMucCha = danhMucCha;
     }
 
     public int getSoLuongSach() {
-        return SoLuongSach;
+        return soLuongSach;
     }
 
     public void setSoLuongSach(int soLuongSach) {
-        SoLuongSach = soLuongSach;
+        this.soLuongSach = soLuongSach;
     }
 
     public Date getNgayTao() {
-        return NgayTao;
+        return ngayTao;
     }
 
     public void setNgayTao(Date ngayTao) {
-        NgayTao = ngayTao;
+        this.ngayTao = ngayTao;
     }
 
     public Date getCapNhatLanCuoi() {
-        return CapNhatLanCuoi;
+        return capNhatLanCuoi;
     }
 
     public void setCapNhatLanCuoi(Date capNhatLanCuoi) {
-        CapNhatLanCuoi = capNhatLanCuoi;
+        this.capNhatLanCuoi = capNhatLanCuoi;
     }
 
     public String getTrangThai() {
-        return TrangThai;
+        return trangThai;
     }
 
     public void setTrangThai(String trangThai) {
-        TrangThai = trangThai;
+        this.trangThai = trangThai;
     }
 
     @Override
     public String toString() {
-        return TenDanhMuc;
+        return tenDanhMuc;
     }
 }
