@@ -232,11 +232,7 @@ public class AdminControlBooks extends JPanel {
 
     private void addEventListeners() {
         // Add action listeners to buttons
-        addBookButton.addActionListener(e -> addBook());
-        editBookButton.addActionListener(e -> editBook());
-        deleteBookButton.addActionListener(e -> deleteBook());
         reloadButton.addActionListener(e -> reloadData());
-
         // Add mouse listener to table for context menu
         booksTable.addMouseListener(new MouseAdapter() {
             @Override
@@ -266,8 +262,6 @@ public class AdminControlBooks extends JPanel {
 
         // Add action listeners to context menu items
         viewMenuItem.addActionListener(e -> viewBookDetails());
-        editMenuItem.addActionListener(e -> editBook());
-        deleteMenuItem.addActionListener(e -> deleteBook());
         updateStatusMenuItem.addActionListener(e -> updateBookStatus());
 
         // Add component listener for resize events
@@ -327,49 +321,6 @@ public class AdminControlBooks extends JPanel {
         JOptionPane.showMessageDialog(this, "Dữ liệu đã được tải lại.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // Book operations
-    private void addBook() {
-        JOptionPane.showMessageDialog(this, "Chức năng thêm sách mới", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-        // This would typically open a form to add a new book
-    }
-
-    private void editBook() {
-        int selectedRow = booksTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn sách để chỉnh sửa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        String bookId = tableModel.getValueAt(selectedRow, 0).toString();
-        JOptionPane.showMessageDialog(this, "Chỉnh sửa sách có mã: " + bookId, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-        // This would typically open a form to edit the selected book
-    }
-
-    private void deleteBook() {
-        int selectedRow = booksTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn sách để xóa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        String bookId = tableModel.getValueAt(selectedRow, 0).toString();
-        String bookTitle = tableModel.getValueAt(selectedRow, 2).toString();
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Bạn có chắc chắn muốn xóa sách '" + bookTitle + "' (Mã: " + bookId + ")?",
-                "Xác nhận xóa",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            // This would typically delete the book from the database
-            tableModel.removeRow(selectedRow);
-            JOptionPane.showMessageDialog(this, "Đã xóa sách thành công.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
     private void viewBookDetails() {
         int selectedRow = booksTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -424,8 +375,25 @@ public class AdminControlBooks extends JPanel {
         return booksTable;
     }
 
+    public JButton getAddBookButton()
+    {
+        return addBookButton;
+    }
+
+    public JButton getEditBookButton() {
+        return editBookButton;
+    }
+
     public DefaultTableModel getTableModel() {
         return tableModel;
+    }
+
+    public JButton getDeleteBookButton() {
+        return deleteBookButton;
+    }
+    
+    public JMenuItem getDeleteMenuItem() {
+        return deleteMenuItem;
     }
 
     // Main method for testing
