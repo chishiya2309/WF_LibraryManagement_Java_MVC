@@ -24,4 +24,18 @@ public class DanhMucSachDAO {
         }
         return danhMucSachs;
     }
+
+    public DanhMucSach getDanhMucSachByMaDanhMuc(String maDanhMuc) throws SQLException {
+        String query = "SELECT * FROM DanhMucSach WHERE MaDanhMuc = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, maDanhMuc);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new DanhMucSach(rs.getString("MaDanhMuc"), rs.getNString("TenDanhMuc"));
+                }
+            }
+        }
+        return null;
+    }
 }

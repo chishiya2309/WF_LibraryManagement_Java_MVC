@@ -26,6 +26,11 @@ public class DanhMucSach {
         TrangThai = trangThai;
     }
 
+    public DanhMucSach(String maDanhMuc, String tenDanhMuc) {
+        MaDanhMuc = maDanhMuc;
+        TenDanhMuc = tenDanhMuc;
+    }
+
     public String getMaDanhMuc() {
         return MaDanhMuc;
     }
