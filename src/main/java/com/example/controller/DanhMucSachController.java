@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class DanhMucSachController {
@@ -149,6 +150,9 @@ public class DanhMucSachController {
             categoryMap.put(category.getMaDanhMuc(), category.getTenDanhMuc());
         }
         
+        // Định dạng ngày tháng DD/MM/YYYY
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        
         // Thêm dữ liệu mới vào bảng
         for (DanhMucSach category : categories) {
             Object[] row = new Object[8];
@@ -161,8 +165,11 @@ public class DanhMucSachController {
             row[3] = (parentId != null && !parentId.isEmpty()) ? categoryMap.get(parentId) : "";
             
             row[4] = category.getSoLuongSach();
-            row[5] = category.getNgayTao();
-            row[6] = category.getCapNhatLanCuoi();
+            
+            // Định dạng ngày tháng
+            row[5] = category.getNgayTao() != null ? dateFormat.format(category.getNgayTao()) : "";
+            row[6] = category.getCapNhatLanCuoi() != null ? dateFormat.format(category.getCapNhatLanCuoi()) : "";
+            
             row[7] = category.getTrangThai();
             
             mainView.getTableModel().addRow(row);

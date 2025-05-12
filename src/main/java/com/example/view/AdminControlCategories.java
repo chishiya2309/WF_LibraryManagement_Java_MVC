@@ -5,8 +5,6 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
-import java.util.*;
-import java.text.SimpleDateFormat;
 import com.example.dao.DanhMucSachDAO;
 import com.example.controller.DanhMucSachController;
 

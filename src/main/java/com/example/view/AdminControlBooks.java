@@ -395,24 +395,4 @@ public class AdminControlBooks extends JPanel {
     public JMenuItem getDeleteMenuItem() {
         return deleteMenuItem;
     }
-
-    // Main method for testing
-    public static void main(String[] args) {
-        // Set the look and feel to the system look and feel
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Create and display the form
-        SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Book Management");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(900, 600);
-            frame.add(new AdminControlBooks());
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-        });
-    }
 }
