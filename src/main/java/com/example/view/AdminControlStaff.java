@@ -4,20 +4,20 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.text.SimpleDateFormat;
 import java.sql.SQLException;
+import java.util.List;
 
-import com.example.controller.ThanhVienController;
-import com.example.dao.ThanhVienDAO;
-import com.example.model.ThanhVien;
+import com.example.controller.NhanVienController;
+import com.example.dao.NhanVienDAO;
+import com.example.model.NhanVien;
 
-public class AdminControlMember extends JPanel {
+public class AdminControlStaff extends JPanel {
     // Colors
     private final Color PURPLE = new Color(76, 40, 130);
-    private final Color DARK_ORANGE = new Color(255, 140, 0);
-    private final Color RED = new Color(200, 0, 0);
     private final Color BLUE = new Color(0, 150, 200);
+    private final Color ORANGE = new Color(255, 140, 0);
+    private final Color RED = new Color(200, 0, 0);
     private final Color GREEN = new Color(34, 139, 34);
     private final Color WHITE = Color.WHITE;
     private final Color LIGHT_GRAY = new Color(245, 245, 245);
@@ -33,37 +33,33 @@ public class AdminControlMember extends JPanel {
 
     private JTextField searchField;
 
-    private JButton addMemberButton;
-    private JButton editMemberButton;
-    private JButton deleteMemberButton;
+    private JButton addStaffButton;
+    private JButton editStaffButton;
+    private JButton deleteStaffButton;
     private JButton reloadButton;
     private JButton searchButton;
 
-    private JTable membersTable;
+    private JTable staffTable;
     private DefaultTableModel tableModel;
     private JScrollPane tableScrollPane;
 
     private JPopupMenu contextMenu;
-    private JMenuItem viewDetailsMenuItem;
+    private JMenuItem addMenuItem;
     private JMenuItem editMenuItem;
     private JMenuItem deleteMenuItem;
-    private JMenuItem renewMembershipMenuItem;
-    private JMenuItem viewLoansMenuItem;
-    private JMenuItem printCardMenuItem;
 
     // Data access object
-    private ThanhVienDAO thanhVienDAO;
+    private NhanVienDAO nhanVienDAO;
     
     // Controller
-    private ThanhVienController controller;
+    private NhanVienController nhanVienController;
 
-    public AdminControlMember() {
+    public AdminControlStaff() {
         // Set up the panel
         setLayout(new BorderLayout());
-        setBackground(WHITE);
-
+        
         // Initialize data access object
-        thanhVienDAO = new ThanhVienDAO();
+        nhanVienDAO = new NhanVienDAO();
 
         // Initialize components
         initComponents();
@@ -72,14 +68,14 @@ public class AdminControlMember extends JPanel {
         layoutComponents();
         
         // Initialize controller
-        controller = new ThanhVienController(this, thanhVienDAO);
+        nhanVienController = new NhanVienController(this, nhanVienDAO);
 
         // Load initial data
         try {
-            controller.loadMembers();
+            nhanVienController.loadStaff();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Lỗi khi tải dữ liệu thành viên: " + ex.getMessage(),
+                    "Lỗi khi tải dữ liệu nhân viên: " + ex.getMessage(),
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -98,7 +94,7 @@ public class AdminControlMember extends JPanel {
         searchPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
         // Initialize labels
-        titleLabel = new JLabel("Quản lý thành viên");
+        titleLabel = new JLabel("Quản lý nhân viên");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
         searchLabel = new JLabel("Tìm kiếm:");
@@ -115,16 +111,16 @@ public class AdminControlMember extends JPanel {
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 10));
 
         // Initialize buttons
-        addMemberButton = createButton("Thêm thành viên mới", PURPLE);
-        editMemberButton = createButton("Sửa thành viên", DARK_ORANGE);
-        deleteMemberButton = createButton("Xóa thành viên", RED);
+        addStaffButton = createButton("Thêm nhân viên mới", PURPLE);
+        editStaffButton = createButton("Sửa nhân viên", ORANGE);
+        deleteStaffButton = createButton("Xóa nhân viên", RED);
         reloadButton = createButton("Reload", BLUE);
         searchButton = createButton("Tìm", GREEN);
 
         // Initialize table
         String[] columnNames = {
-                "Mã thành viên", "Họ và tên", "Giới tính", "Số điện thoại",
-                "Email", "Loại thành viên", "Ngày đăng ký", "Ngày hết hạn", "Trạng thái"
+                "ID", "Họ và tên", "Giới tính", "Chức vụ",
+                "Email", "Số điện thoại", "Ngày vào làm", "Trạng thái"
         };
 
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -134,16 +130,16 @@ public class AdminControlMember extends JPanel {
             }
         };
 
-        membersTable = new JTable(tableModel);
-        membersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        membersTable.setRowHeight(25);
-        membersTable.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        membersTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 10));
-        membersTable.setShowGrid(false);
-        membersTable.setIntercellSpacing(new Dimension(0, 0));
+        staffTable = new JTable(tableModel);
+        staffTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        staffTable.setRowHeight(25);
+        staffTable.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        staffTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 10));
+        staffTable.setShowGrid(false);
+        staffTable.setIntercellSpacing(new Dimension(0, 0));
 
         // Set up alternating row colors
-        membersTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        staffTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -151,15 +147,13 @@ public class AdminControlMember extends JPanel {
                     c.setBackground(row % 2 == 0 ? WHITE : new Color(240, 240, 240));
                 }
 
-                // Format status column
-                if (column == 8 && value != null) {
+                // Apply special formatting for status column
+                if (column == 7 && value != null) {
                     String status = value.toString();
-                    if (status.equals("Hoạt động")) {
+                    if ("Đang làm".equals(status)) {
                         c.setForeground(GREEN);
-                    } else if (status.equals("Hết hạn")) {
-                        c.setForeground(DARK_ORANGE);
-                    } else if (status.equals("Khóa")) {
-                        c.setForeground(RED);
+                    } else if ("Tạm nghỉ".equals(status)) {
+                        c.setForeground(ORANGE);
                     } else {
                         c.setForeground(Color.BLACK);
                     }
@@ -171,24 +165,18 @@ public class AdminControlMember extends JPanel {
             }
         });
 
-        tableScrollPane = new JScrollPane(membersTable);
+        tableScrollPane = new JScrollPane(staffTable);
         tableScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         // Initialize context menu
         contextMenu = new JPopupMenu();
-        viewDetailsMenuItem = new JMenuItem("Xem chi tiết");
+        addMenuItem = new JMenuItem("Thêm");
         editMenuItem = new JMenuItem("Chỉnh sửa");
         deleteMenuItem = new JMenuItem("Xóa");
-        renewMembershipMenuItem = new JMenuItem("Gia hạn thẻ");
-        viewLoansMenuItem = new JMenuItem("Sách đang mượn");
-        printCardMenuItem = new JMenuItem("In thẻ thành viên");
 
-        contextMenu.add(viewDetailsMenuItem);
+        contextMenu.add(addMenuItem);
         contextMenu.add(editMenuItem);
         contextMenu.add(deleteMenuItem);
-        contextMenu.add(renewMembershipMenuItem);
-        contextMenu.add(viewLoansMenuItem);
-        contextMenu.add(printCardMenuItem);
     }
 
     private JButton createButton(String text, Color bgColor) {
@@ -218,9 +206,9 @@ public class AdminControlMember extends JPanel {
         centerPanel.setBackground(WHITE);
 
         // Add buttons to button panel
-        buttonPanel.add(addMemberButton);
-        buttonPanel.add(editMemberButton);
-        buttonPanel.add(deleteMemberButton);
+        buttonPanel.add(addStaffButton);
+        buttonPanel.add(editStaffButton);
+        buttonPanel.add(deleteStaffButton);
         buttonPanel.add(reloadButton);
 
         // Set up search panel
@@ -255,17 +243,17 @@ public class AdminControlMember extends JPanel {
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    // Getter methods for UI components
-    public JButton getAddMemberButton() {
-        return addMemberButton;
-    }
-
-    public JButton getEditMemberButton() {
-        return editMemberButton;
+    // Getters for UI components
+    public JButton getAddStaffButton() {
+        return addStaffButton;
     }
     
-    public JButton getDeleteMemberButton() {
-        return deleteMemberButton;
+    public JButton getEditStaffButton() {
+        return editStaffButton;
+    }
+    
+    public JButton getDeleteStaffButton() {
+        return deleteStaffButton;
     }
     
     public JButton getReloadButton() {
@@ -284,42 +272,30 @@ public class AdminControlMember extends JPanel {
         return noDataLabel;
     }
 
-    public JTable getMembersTable() {
-        return membersTable;
+    public JTable getStaffTable() {
+        return staffTable;
     }
 
     public DefaultTableModel getTableModel() {
         return tableModel;
     }
     
-    public JMenuItem getDeleteMenuItem() {
-        return deleteMenuItem;
+    public JMenuItem getAddMenuItem() {
+        return addMenuItem;
     }
-
+    
     public JMenuItem getEditMenuItem() {
         return editMenuItem;
     }
-
-    public JMenuItem getViewDetailsMenuItem() {
-        return viewDetailsMenuItem;
+    
+    public JMenuItem getDeleteMenuItem() {
+        return deleteMenuItem;
     }
-
-    public JMenuItem getRenewMembershipMenuItem() {
-        return renewMembershipMenuItem;
-    }
-
-    public JMenuItem getViewLoansMenuItem() {
-        return viewLoansMenuItem;
-    }
-
-    public JMenuItem getPrintCardMenuItem() {
-        return printCardMenuItem;
-    }
-
+    
     public JPopupMenu getContextMenu() {
         return contextMenu;
     }
-
+    
     public JScrollPane getTableScrollPane() {
         return tableScrollPane;
     }

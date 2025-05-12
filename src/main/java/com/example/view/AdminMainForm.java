@@ -328,19 +328,6 @@ public class AdminMainForm extends JFrame {
         return new ImageIcon(image);
     }
 
-    private class AdminControlStaff extends JPanel {
-        public AdminControlStaff() {
-            setLayout(new BorderLayout());
-            setBackground(WHITE);
-
-            JLabel titleLabel = new JLabel("Quản lý nhân viên");
-            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-            titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
-
-            add(titleLabel, BorderLayout.NORTH);
-        }
-    }
-
     private class AdminControlLoanAndReturn extends JPanel {
         public AdminControlLoanAndReturn() {
             setLayout(new BorderLayout());
