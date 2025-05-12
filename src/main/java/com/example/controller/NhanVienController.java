@@ -3,9 +3,11 @@ package com.example.controller;
 import com.example.dao.NhanVienDAO;
 import com.example.model.NhanVien;
 import com.example.view.AdminControlStaff;
+import com.example.view.FormAddStaff;
 
 import javax.swing.*;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -14,14 +16,20 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.List;
+
+import javax.swing.table.DefaultTableModel;
 
 public class NhanVienController {
     private AdminControlStaff mainView;
     private NhanVienDAO nhanVienDAO;
 
-    public NhanVienController() {}
+    public NhanVienController() {
+        this.nhanVienDAO = new NhanVienDAO();
+    }
 
     public NhanVienController(AdminControlStaff mainView, NhanVienDAO nhanVienDAO) {
         this.mainView = mainView;
@@ -208,8 +216,8 @@ public class NhanVienController {
         }
         
         try {
-            // Sử dụng phương thức searchNhanViens từ DAO để tìm kiếm trong database
-            List<NhanVien> searchResults = nhanVienDAO.searchNhanViens(searchTerm);
+            // Sử dụng phương thức searchNhanVien từ DAO để tìm kiếm trong database
+            List<NhanVien> searchResults = nhanVienDAO.searchNhanVien(searchTerm);
             
             // Hiển thị kết quả tìm kiếm
             displayStaff(searchResults);
@@ -227,7 +235,7 @@ public class NhanVienController {
     }
     
     public void loadStaff() throws SQLException {
-        List<NhanVien> staffList = nhanVienDAO.getAllNhanViens();
+        List<NhanVien> staffList = nhanVienDAO.getAllNhanVien();
         displayStaff(staffList);
         
         // Show/hide no data label
@@ -244,26 +252,38 @@ public class NhanVienController {
         
         // Thêm dữ liệu mới vào bảng
         for (NhanVien staff : staffList) {
-            Object[] row = new Object[8];
-            row[0] = staff.getID();
-            row[1] = staff.getHoTen();
-            row[2] = staff.getGioiTinh();
-            row[3] = staff.getChucVu();
-            row[4] = staff.getEmail();
-            row[5] = staff.getSoDienThoai();
-            row[6] = staff.getNgayVaoLam() != null ? dateFormat.format(staff.getNgayVaoLam()) : "";
-            row[7] = staff.getTrangThai();
-            
-            mainView.getTableModel().addRow(row);
+            mainView.getTableModel().addRow(new Object[]{
+                staff.getId(),
+                staff.getHoTen(),
+                staff.getGioiTinh(),
+                staff.getChucVu(),
+                staff.getEmail(),
+                staff.getSoDienThoai(),
+                dateFormat.format(staff.getNgayVaoLam()),
+                staff.getTrangThai()
+            });
         }
     }
     
     private void addStaff() {
-        JOptionPane.showMessageDialog(mainView,
-                "Chức năng thêm nhân viên mới sẽ được mở ở đây.",
-                "Thêm nhân viên",
-                JOptionPane.INFORMATION_MESSAGE);
-        // Ở đây sẽ mở form thêm nhân viên mới
+        // Mở form thêm nhân viên mới
+        FormAddStaff formAddStaff = new FormAddStaff();
+        formAddStaff.setVisible(true);
+        formAddStaff.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                if (formAddStaff.isSuccessful()) {
+                    try {
+                        loadStaff();
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(mainView,
+                                "Lỗi khi tải lại dữ liệu: " + ex.getMessage(),
+                                "Lỗi",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
     }
     
     private void editStaff() {
@@ -329,5 +349,73 @@ public class NhanVienController {
             }
         }
         return false;
+    }
+
+    public void loadDataToTable(DefaultTableModel tableModel) throws SQLException {
+        // Xóa dữ liệu cũ
+        tableModel.setRowCount(0);
+        
+        // Lấy danh sách nhân viên từ DAO
+        List<NhanVien> nhanViens = nhanVienDAO.getAllNhanVien();
+        
+        // Thêm dữ liệu vào bảng
+        for (NhanVien nhanVien : nhanViens) {
+            tableModel.addRow(new Object[]{
+                nhanVien.getId(),
+                nhanVien.getHoTen(),
+                nhanVien.getGioiTinh(),
+                nhanVien.getChucVu(),
+                nhanVien.getEmail(),
+                nhanVien.getSoDienThoai(),
+                nhanVien.getNgayVaoLam(),
+                nhanVien.getTrangThai()
+            });
+        }
+    }
+    
+    public void searchNhanVien(DefaultTableModel tableModel, String keyword) throws SQLException {
+        // Xóa dữ liệu cũ
+        tableModel.setRowCount(0);
+        
+        // Tìm kiếm nhân viên theo từ khóa
+        List<NhanVien> nhanViens = nhanVienDAO.searchNhanVien(keyword);
+        
+        // Thêm dữ liệu vào bảng
+        for (NhanVien nhanVien : nhanViens) {
+            tableModel.addRow(new Object[]{
+                nhanVien.getId(),
+                nhanVien.getHoTen(),
+                nhanVien.getGioiTinh(),
+                nhanVien.getChucVu(),
+                nhanVien.getEmail(),
+                nhanVien.getSoDienThoai(),
+                nhanVien.getNgayVaoLam(),
+                nhanVien.getTrangThai()
+            });
+        }
+    }
+    
+    public NhanVien getNhanVienById(String id) throws SQLException {
+        return nhanVienDAO.getNhanVienById(id);
+    }
+    
+    public void addNhanVien(NhanVien nhanVien) throws SQLException {
+        nhanVienDAO.addNhanVien(nhanVien);
+    }
+    
+    public void updateNhanVien(NhanVien nhanVien) throws SQLException {
+        nhanVienDAO.updateNhanVien(nhanVien);
+    }
+    
+    public boolean deleteNhanVien(String id) throws SQLException {
+        return nhanVienDAO.deleteNhanVien(id);
+    }
+    
+    public boolean isEmailExists(String email) throws SQLException {
+        return nhanVienDAO.isEmailExists(email);
+    }
+    
+    public boolean isPhoneExists(String phone) throws SQLException {
+        return nhanVienDAO.isPhoneExists(phone);
     }
 }

@@ -9,22 +9,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NhanVienDAO {
-    public List<NhanVien> getAllNhanViens() throws SQLException {
+    public List<NhanVien> getAllNhanVien() throws SQLException {
         List<NhanVien> nhanViens = new ArrayList<>();
-        String query = "SELECT * From NhanVien";
+        String query = "SELECT * FROM NhanVien";
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                nhanViens.add(new NhanVien(rs.getString("ID"), rs.getNString("HoTen"),
-                        rs.getNString("GioiTinh"), rs.getNString("ChucVu"), rs.getString("Email"), rs.getString("SoDienThoai"),
-                        rs.getDate("NgayVaoLam"), rs.getNString("TrangThai")));
+                nhanViens.add(new NhanVien(
+                        rs.getString("ID"),
+                        rs.getNString("HoTen"),
+                        rs.getNString("GioiTinh"),
+                        rs.getNString("ChucVu"),
+                        rs.getString("Email"),
+                        rs.getString("SoDienThoai"),
+                        rs.getDate("NgayVaoLam"),
+                        rs.getNString("TrangThai")
+                ));
             }
         }
         return nhanViens;
     }
     
-    public List<NhanVien> searchNhanViens(String keyword) throws SQLException {
+    public List<NhanVien> searchNhanVien(String keyword) throws SQLException {
         List<NhanVien> nhanViens = new ArrayList<>();
         String query = "SELECT * FROM NhanVien WHERE ID LIKE ? OR HoTen LIKE ? OR GioiTinh LIKE ? OR ChucVu LIKE ? OR Email LIKE ? OR SoDienThoai LIKE ? OR TrangThai LIKE ?";
         
@@ -43,9 +50,16 @@ public class NhanVienDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while(rs.next()) {
-                    nhanViens.add(new NhanVien(rs.getString("ID"), rs.getNString("HoTen"),
-                            rs.getNString("GioiTinh"), rs.getNString("ChucVu"), rs.getString("Email"), rs.getString("SoDienThoai"),
-                            rs.getDate("NgayVaoLam"), rs.getNString("TrangThai")));
+                    nhanViens.add(new NhanVien(
+                            rs.getString("ID"),
+                            rs.getNString("HoTen"),
+                            rs.getNString("GioiTinh"),
+                            rs.getNString("ChucVu"),
+                            rs.getString("Email"),
+                            rs.getString("SoDienThoai"),
+                            rs.getDate("NgayVaoLam"),
+                            rs.getNString("TrangThai")
+                    ));
                 }
             }
         }
@@ -59,9 +73,16 @@ public class NhanVienDAO {
             stmt.setString(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new NhanVien(rs.getString("ID"), rs.getNString("HoTen"),
-                            rs.getNString("GioiTinh"), rs.getNString("ChucVu"), rs.getString("Email"), rs.getString("SoDienThoai"),
-                            rs.getDate("NgayVaoLam"), rs.getNString("TrangThai"));
+                    return new NhanVien(
+                            rs.getString("ID"),
+                            rs.getNString("HoTen"),
+                            rs.getNString("GioiTinh"),
+                            rs.getNString("ChucVu"),
+                            rs.getString("Email"),
+                            rs.getString("SoDienThoai"),
+                            rs.getDate("NgayVaoLam"),
+                            rs.getNString("TrangThai")
+                    );
                 }
             }
         }
@@ -72,7 +93,7 @@ public class NhanVienDAO {
         String query = "INSERT INTO NhanVien (ID, HoTen, GioiTinh, ChucVu, Email, SoDienThoai, NgayVaoLam, TrangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, nhanVien.getID());
+            stmt.setString(1, nhanVien.getId());
             stmt.setString(2, nhanVien.getHoTen());
             stmt.setString(3, nhanVien.getGioiTinh());
             stmt.setString(4, nhanVien.getChucVu());
@@ -95,7 +116,7 @@ public class NhanVienDAO {
             stmt.setString(5, nhanVien.getSoDienThoai());
             stmt.setDate(6, nhanVien.getNgayVaoLam());
             stmt.setString(7, nhanVien.getTrangThai());
-            stmt.setString(8, nhanVien.getID());
+            stmt.setString(8, nhanVien.getId());
             stmt.executeUpdate();
         }
     }
@@ -124,11 +145,11 @@ public class NhanVienDAO {
         return false;
     }
     
-    public boolean isPhoneExists(String soDienThoai) throws SQLException {
+    public boolean isPhoneExists(String phone) throws SQLException {
         String query = "SELECT COUNT(*) FROM NhanVien WHERE SoDienThoai = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, soDienThoai);
+            stmt.setString(1, phone);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
