@@ -4,7 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.regex.Pattern;
-
+import com.example.dao.ThanhVienDAO;
+import com.example.controller.FormAddMemberController;
 
 public class FormAddMember extends JDialog {
     // Colors
@@ -43,8 +44,10 @@ public class FormAddMember extends JDialog {
     private JButton cancelButton;
 
     // Data access object
-    private DBMembers dbMembers;
-    private boolean successful = false;
+    private ThanhVienDAO thanhVienDAO;
+    
+    // Controller
+    private FormAddMemberController controller;
 
     public FormAddMember() {
         // Set up the dialog
@@ -56,7 +59,10 @@ public class FormAddMember extends JDialog {
         setModal(true);
 
         // Initialize data access objects
-        dbMembers = new DBMembers();
+        thanhVienDAO = new ThanhVienDAO();
+        
+        // Initialize controller
+        controller = new FormAddMemberController(this, thanhVienDAO);
 
         // Initialize components
         initComponents();
@@ -156,7 +162,7 @@ public class FormAddMember extends JDialog {
 
         // Initialize buttons
         saveButton = new JButton("Lưu");
-        cancelButton = new JButton("Hủy");
+        cancelButton = new JButton("Đóng");
 
         // Style buttons
         saveButton.setBackground(PURPLE);
@@ -305,165 +311,66 @@ public class FormAddMember extends JDialog {
 
     private void addEventListeners() {
         // Add action listener to save button
-        saveButton.addActionListener(e -> saveMember());
+        saveButton.addActionListener(e -> controller.saveMember());
 
         // Add action listener to cancel button
-        cancelButton.addActionListener(e -> {
+        cancelButton.addActionListener(e -> closeForm());
+    }
+    
+    private void closeForm() {
+        // Hiển thị hộp thoại xác nhận trước khi đóng form
+        int option = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn đóng form? Mọi thông tin chưa lưu sẽ bị mất.",
+                "Xác nhận đóng",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (option == JOptionPane.YES_OPTION) {
             setVisible(false);
             dispose();
-        });
-    }
-
-    private void saveMember() {
-        if (!validateInputs()) {
-            return;
-        }
-
-        try {
-            String memberId = memberIdField.getText().trim();
-            String name = nameField.getText().trim();
-            String gender = genderComboBox.getSelectedItem().toString();
-            String phone = phoneField.getText().trim();
-            String email = emailField.getText().trim();
-            String memberType = memberTypeComboBox.getSelectedItem().toString();
-            Date registerDate = (Date) registerDateSpinner.getValue();
-            Date expiryDate = (Date) expiryDateSpinner.getValue();
-            String status = statusComboBox.getSelectedItem().toString();
-
-            // Add member to database
-            boolean success = dbMembers.addMember(memberId, name, gender, phone, email,
-                    memberType, registerDate, expiryDate, status);
-
-            if (success) {
-                JOptionPane.showMessageDialog(this,
-                        "Thêm thành viên mới thành công!",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
-                successful = true;
-                setVisible(false);
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Lỗi khi thêm thành viên",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Lỗi: " + ex.getMessage(),
-                    "Lỗi",
-                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private boolean validateInputs() {
-        // Check member ID
-        if (memberIdField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập mã thành viên!",
-                    "Lỗi",
-                    JOptionPane.WARNING_MESSAGE);
-            memberIdField.requestFocus();
-            return false;
-        }
-
-        // Check name
-        if (nameField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập họ tên thành viên!",
-                    "Lỗi",
-                    JOptionPane.WARNING_MESSAGE);
-            nameField.requestFocus();
-            return false;
-        }
-
-        // Check phone
-        if (phoneField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập số điện thoại!",
-                    "Lỗi",
-                    JOptionPane.WARNING_MESSAGE);
-            phoneField.requestFocus();
-            return false;
-        }
-
-        // Check phone format
-        String phonePattern = "^0\\d{9,10}$";
-        if (!Pattern.matches(phonePattern, phoneField.getText().trim())) {
-            JOptionPane.showMessageDialog(this,
-                    "Số điện thoại không hợp lệ! Số điện thoại phải bắt đầu bằng số 0 và có 10-11 chữ số.",
-                    "Lỗi",
-                    JOptionPane.WARNING_MESSAGE);
-            phoneField.requestFocus();
-            return false;
-        }
-
-        // Check email
-        if (emailField.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập địa chỉ email!",
-                    "Lỗi",
-                    JOptionPane.WARNING_MESSAGE);
-            emailField.requestFocus();
-            return false;
-        }
-
-        // Check email format
-        String emailPattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-        if (!Pattern.matches(emailPattern, emailField.getText().trim())) {
-            JOptionPane.showMessageDialog(this,
-                    "Địa chỉ email không hợp lệ!",
-                    "Lỗi",
-                    JOptionPane.WARNING_MESSAGE);
-            emailField.requestFocus();
-            return false;
-        }
-
-        // Check expiry date is after register date
-        Date registerDate = (Date) registerDateSpinner.getValue();
-        Date expiryDate = (Date) expiryDateSpinner.getValue();
-
-        if (!expiryDate.after(registerDate)) {
-            JOptionPane.showMessageDialog(this,
-                    "Ngày hết hạn phải lớn hơn ngày đăng ký!",
-                    "Lỗi",
-                    JOptionPane.WARNING_MESSAGE);
-            expiryDateSpinner.requestFocus();
-            return false;
-        }
-
-        return true;
+    // Getter methods for controller to access form fields
+    public JTextField getMemberIdField() {
+        return memberIdField;
     }
-
+    
+    public JTextField getNameField() {
+        return nameField;
+    }
+    
+    public JComboBox<String> getGenderComboBox() {
+        return genderComboBox;
+    }
+    
+    public JTextField getPhoneField() {
+        return phoneField;
+    }
+    
+    public JTextField getEmailField() {
+        return emailField;
+    }
+    
+    public JComboBox<String> getMemberTypeComboBox() {
+        return memberTypeComboBox;
+    }
+    
+    public JSpinner getRegisterDateSpinner() {
+        return registerDateSpinner;
+    }
+    
+    public JSpinner getExpiryDateSpinner() {
+        return expiryDateSpinner;
+    }
+    
+    public JComboBox<String> getStatusComboBox() {
+        return statusComboBox;
+    }
+    
     public boolean isSuccessful() {
-        return successful;
-    }
-
-    // Data access class (simplified)
-    private class DBMembers {
-        public boolean addMember(String memberId, String name, String gender, String phone,
-                                 String email, String memberType, Date registerDate,
-                                 Date expiryDate, String status) {
-            // This would typically connect to a database and add the member
-            // For demonstration purposes, we'll just return true
-            System.out.println("Adding member: " + memberId + ", " + name);
-            return true;
-        }
-    }
-
-    // Main method for testing
-    public static void main(String[] args) {
-        // Set the look and feel to the system look and feel
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Create and display the form
-        SwingUtilities.invokeLater(() -> {
-            FormAddMember form = new FormAddMember();
-            form.setVisible(true);
-        });
+        return controller.isSuccessful();
     }
 }
