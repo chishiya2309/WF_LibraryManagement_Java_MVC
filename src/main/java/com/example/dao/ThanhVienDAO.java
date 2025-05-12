@@ -123,4 +123,32 @@ public class ThanhVienDAO {
             return rowsAffected > 0;
         }
     }
+
+    public List<ThanhVien> searchThanhViens(String keyword) throws SQLException {
+        List<ThanhVien> thanhViens = new ArrayList<>();
+        String query = "SELECT * FROM ThanhVien WHERE MaThanhVien LIKE ? OR HoTen LIKE ? OR GioiTinh LIKE ? OR SoDienThoai LIKE ? OR Email LIKE ? OR LoaiThanhVien LIKE ? OR TrangThai LIKE ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            // Thiết lập tham số cho câu truy vấn
+            String searchPattern = "%" + keyword + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+            stmt.setString(5, searchPattern);
+            stmt.setString(6, searchPattern);
+            stmt.setString(7, searchPattern);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while(rs.next()) {
+                    thanhViens.add(new ThanhVien(rs.getString("MaThanhVien"), rs.getNString("HoTen"),
+                            rs.getNString("GioiTinh"), rs.getString("SoDienThoai"), rs.getString("Email"), rs.getNString("LoaiThanhVien"),
+                            rs.getDate("NgayDangKy"), rs.getDate("NgayHetHan"), rs.getNString("TrangThai")));
+                }
+            }
+        }
+        return thanhViens;
+    }
 }
