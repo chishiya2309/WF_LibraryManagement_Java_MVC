@@ -474,11 +474,7 @@ public class AdminControlMember extends JPanel {
                     JOptionPane.QUESTION_MESSAGE);
 
             if (result == JOptionPane.YES_OPTION) {
-                // Chỗ này sẽ cần thêm phương thức xóa thành viên trong ThanhVienDAO
-                // boolean success = thanhVienDAO.deleteThanhVien(memberId);
-                
-                // Tạm thời giả định thành công
-                boolean success = true;
+                boolean success = thanhVienDAO.deleteThanhVien(memberId);
 
                 if (success) {
                     loadData();
@@ -493,7 +489,7 @@ public class AdminControlMember extends JPanel {
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
                     "Lỗi khi xóa thành viên: " + ex.getMessage(),
                     "Lỗi",
@@ -556,34 +552,5 @@ public class AdminControlMember extends JPanel {
 
     public DefaultTableModel getTableModel() {
         return tableModel;
-    }
-
-    private class FormEditMember extends JDialog {
-        private boolean successful = false;
-
-        public FormEditMember(String memberId) {
-            setTitle("Chỉnh sửa thành viên");
-            setSize(500, 400);
-            setModal(true);
-            setLocationRelativeTo(null);
-            setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-            // This would typically contain form fields and save/cancel buttons
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.add(new JLabel("Form chỉnh sửa thành viên sẽ được triển khai sau.", JLabel.CENTER), BorderLayout.CENTER);
-
-            JButton closeButton = new JButton("Đóng");
-            closeButton.addActionListener(e -> dispose());
-
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.add(closeButton);
-            panel.add(buttonPanel, BorderLayout.SOUTH);
-
-            add(panel);
-        }
-
-        public boolean isSuccessful() {
-            return successful;
-        }
     }
 }
