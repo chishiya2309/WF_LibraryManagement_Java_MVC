@@ -105,13 +105,9 @@ public class AdminControlReports extends JPanel {
         String[] reportTypes = {
                 "Sách có số lượng khả dụng thấp",
                 "Danh sách thành viên sắp hết hạn",
-                "Thống kê số lượng thành viên theo loại",
                 "Danh sách phiếu mượn quá hạn",
                 "Lịch sử mượn sách của thành viên cụ thể",
-                "Top thành viên đang mượn nhiều sách nhất",
-                "Top sách phổ biến nhất",
-                "Thống kê sách mượn",
-                "Tỷ lệ trả sách đúng/quá hạn"
+                "Top sách phổ biến nhất"
         };
 
         reportTypeList = new JList<>(reportTypes);
@@ -360,28 +356,19 @@ public class AdminControlReports extends JPanel {
                 reportPanel = new AdminControlLowStockBooks();
                 break;
             case "Danh sách thành viên sắp hết hạn":
+                System.out.println("Tạo báo cáo AdminControlExpiringMembers");
                 reportPanel = new AdminControlExpiringMembers();
-                break;
-            case "Thống kê số lượng thành viên theo loại":
-                reportPanel = new AdminControlMembersChart();
                 break;
             case "Danh sách phiếu mượn quá hạn":
                 reportPanel = new AdminControlPhieuMuonQuaHan();
                 break;
             case "Lịch sử mượn sách của thành viên cụ thể":
+                // Create a new instance and make sure it's properly initialized
                 reportPanel = new AdminControlMemberLoanHistory();
-                break;
-            case "Top thành viên đang mượn nhiều sách nhất":
-                reportPanel = new AdminControlTopBorrowers();
+                System.out.println("Đã tạo AdminControlMemberLoanHistory");
                 break;
             case "Top sách phổ biến nhất":
                 reportPanel = new AdminControlPopularBooks();
-                break;
-            case "Thống kê sách mượn":
-                reportPanel = new AdminControlThongKeSachMuon();
-                break;
-            case "Tỷ lệ trả sách đúng/quá hạn":
-                reportPanel = new AdminControlReturnRateStats();
                 break;
             default:
                 JOptionPane.showMessageDialog(this,
@@ -394,7 +381,12 @@ public class AdminControlReports extends JPanel {
         // Add the report panel to the preview panel
         if (reportPanel != null) {
             System.out.println("Thêm báo cáo " + reportPanel.getClass().getSimpleName() + " vào previewPanel");
+
+            // Set size constraints for the report panel
             reportPanel.setBackground(WHITE);
+            reportPanel.setPreferredSize(new Dimension(previewPanel.getWidth() - 30, previewPanel.getHeight() - 50));
+
+            // Use BorderLayout.CENTER to ensure proper sizing
             previewPanel.add(reportPanel, BorderLayout.CENTER);
 
             // Add back the title component if it exists
@@ -402,81 +394,13 @@ public class AdminControlReports extends JPanel {
                 previewPanel.add(titleComponent, BorderLayout.NORTH);
             }
 
+            // Make sure the panel is visible
+            reportPanel.setVisible(true);
+
+            // Validate and repaint
             previewPanel.revalidate();
             previewPanel.repaint();
             System.out.println("Đã revalidate và repaint previewPanel");
-        }
-    }
-
-    private class AdminControlExpiringMembers extends JPanel {
-        public AdminControlExpiringMembers() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo danh sách thành viên sắp hết hạn");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
-        }
-    }
-
-    private class AdminControlMembersChart extends JPanel {
-        public AdminControlMembersChart() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo thống kê số lượng thành viên theo loại");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
-        }
-    }
-
-    private class AdminControlPhieuMuonQuaHan extends JPanel {
-        public AdminControlPhieuMuonQuaHan() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo danh sách phiếu mượn quá hạn");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
-        }
-    }
-
-    private class AdminControlMemberLoanHistory extends JPanel {
-        public AdminControlMemberLoanHistory() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo lịch sử mượn sách của thành viên cụ thể");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
-        }
-    }
-
-    private class AdminControlTopBorrowers extends JPanel {
-        public AdminControlTopBorrowers() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo top thành viên đang mượn nhiều sách nhất");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
-        }
-    }
-
-    private class AdminControlPopularBooks extends JPanel {
-        public AdminControlPopularBooks() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo top sách phổ biến nhất");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
-        }
-    }
-
-    private class AdminControlThongKeSachMuon extends JPanel {
-        public AdminControlThongKeSachMuon() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo thống kê sách mượn");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
-        }
-    }
-
-    private class AdminControlReturnRateStats extends JPanel {
-        public AdminControlReturnRateStats() {
-            setLayout(new BorderLayout());
-            JLabel label = new JLabel("Báo cáo tỷ lệ trả sách đúng/quá hạn");
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            add(label, BorderLayout.CENTER);
         }
     }
 }

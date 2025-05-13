@@ -13,7 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.Date;
 import java.sql.CallableStatement;
+import java.util.Calendar;
 
+/**
+ * DAO cho phiếu mượn
+ */
 public class PhieuMuonDAO {
     public List<PhieuMuon> getAllPhieuMuons() throws SQLException {
         List<PhieuMuon> phieuMuons = new ArrayList<>();
@@ -402,5 +406,53 @@ public class PhieuMuonDAO {
             if (ps != null) try { ps.close(); } catch (SQLException e) { }
             if (conn != null) try { conn.close(); } catch (SQLException e) { }
         }
+    }
+
+    /**
+     * Lấy danh sách phiếu mượn quá hạn
+     * @return Danh sách phiếu mượn quá hạn
+     * @throws SQLException Nếu có lỗi khi truy vấn cơ sở dữ liệu
+     */
+    public List<PhieuMuon> getPhieuMuonQuaHan() throws SQLException {
+        List<PhieuMuon> phieuMuons = new ArrayList<>();
+        
+        String query = "SELECT pm.*, tv.HoTen, s.TenSach " +
+                "FROM PhieuMuon pm " +
+                "JOIN ThanhVien tv ON pm.MaThanhVien = tv.MaThanhVien " +
+                "JOIN Sach s ON pm.MaSach = s.MaSach " +
+                "WHERE pm.TrangThai = N'Quá hạn'";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                // Tạo đối tượng ThanhVien
+                ThanhVien thanhVien = new ThanhVien();
+                thanhVien.setMaThanhVien(rs.getString("MaThanhVien"));
+                thanhVien.setHoTen(rs.getNString("HoTen"));
+                
+                // Tạo đối tượng Sach
+                Sach sach = new Sach();
+                sach.setMaSach(rs.getString("MaSach"));
+                sach.setTenSach(rs.getNString("TenSach"));
+                
+                // Tạo đối tượng PhieuMuon
+                PhieuMuon phieuMuon = new PhieuMuon(
+                        rs.getInt("MaPhieu"),
+                        thanhVien,
+                        rs.getDate("NgayMuon"),
+                        rs.getDate("HanTra"),
+                        rs.getDate("NgayTraThucTe"),
+                        rs.getNString("TrangThai"),
+                        sach,
+                        rs.getInt("SoLuong")
+                );
+                
+                phieuMuons.add(phieuMuon);
+            }
+        }
+        
+        return phieuMuons;
     }
 }

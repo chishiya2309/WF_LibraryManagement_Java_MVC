@@ -20,6 +20,13 @@
       <version>8.0.33</version>
     </dependency>
 
+      <!-- JFreeChart -->
+      <dependency>
+          <groupId>org.jfree</groupId>
+          <artifactId>jfreechart</artifactId>
+          <version>1.5.4</version> <!-- hoặc phiên bản mới nhất ổn định -->
+      </dependency>
+
   </dependencies>
     <build>
         <plugins>

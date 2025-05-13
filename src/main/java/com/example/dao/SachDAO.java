@@ -11,9 +11,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class SachDAO {
     private final DanhMucSachDAO danhMucSachDAO = new DanhMucSachDAO();
     
+
     public List<Sach> getAllSachs() throws SQLException {
         List<Sach> sachs = new ArrayList<>();
         String query = "SELECT s.*, d.TenDanhMuc " +
@@ -49,7 +51,7 @@ public class SachDAO {
         
         return sachs;
     }
-    
+
     public List<Sach> searchSachs(String keyword) throws SQLException {
         List<Sach> sachs = new ArrayList<>();
         String query = "SELECT s.*, d.TenDanhMuc " +
