@@ -177,4 +177,27 @@ public class SachDAO {
             stmt.executeUpdate();
         }
     }
+
+    public int getSachKhaDung(String maSach) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DatabaseConnection.getConnection();
+            String query = "SELECT KhaDung FROM Sach WHERE MaSach = ?";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, maSach);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("KhaDung");
+            }
+            return 0;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (ps != null) try { ps.close(); } catch (SQLException e) { }
+            if (conn != null) try { conn.close(); } catch (SQLException e) { }
+        }
+    }
 }
