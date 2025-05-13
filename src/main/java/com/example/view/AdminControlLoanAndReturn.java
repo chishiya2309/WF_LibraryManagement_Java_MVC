@@ -4,15 +4,16 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import java.text.SimpleDateFormat;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.example.controller.NhanVienController;
-import com.example.dao.NhanVienDAO;
-import com.example.model.NhanVien;
+import com.example.controller.PhieuMuonController;
+import com.example.dao.PhieuMuonDAO;
+import com.example.model.PhieuMuon;
 
-public class AdminControlStaff extends JPanel {
+public class AdminControlLoanAndReturn extends JPanel {
     // Colors
     private final Color PURPLE = new Color(76, 40, 130);
     private final Color BLUE = new Color(0, 150, 200);
@@ -33,13 +34,14 @@ public class AdminControlStaff extends JPanel {
 
     private JTextField searchField;
 
-    private JButton addStaffButton;
-    private JButton editStaffButton;
-    private JButton deleteStaffButton;
+    private JButton loanButton;
+    private JButton returnButton;
+    private JButton editLoanButton;
+    private JButton deleteLoanButton;
     private JButton reloadButton;
     private JButton searchButton;
 
-    private JTable staffTable;
+    private JTable loanReturnTable;
     private DefaultTableModel tableModel;
     private JScrollPane tableScrollPane;
 
@@ -49,17 +51,18 @@ public class AdminControlStaff extends JPanel {
     private JMenuItem deleteMenuItem;
 
     // Data access object
-    private NhanVienDAO nhanVienDAO;
+    private PhieuMuonDAO phieuMuonDAO;
     
     // Controller
-    private NhanVienController nhanVienController;
+    private PhieuMuonController controller;
 
-    public AdminControlStaff() {
+    public AdminControlLoanAndReturn() {
         // Set up the panel
         setLayout(new BorderLayout());
-        
+        setBackground(WHITE);
+
         // Initialize data access object
-        nhanVienDAO = new NhanVienDAO();
+        phieuMuonDAO = new PhieuMuonDAO();
 
         // Initialize components
         initComponents();
@@ -67,18 +70,18 @@ public class AdminControlStaff extends JPanel {
         // Add components to the panel
         layoutComponents();
         
-        // Initialize controller và đăng ký các event
-        nhanVienController = new NhanVienController(this, nhanVienDAO);
+        // Initialize controller
+        controller = new PhieuMuonController(this, phieuMuonDAO);
         
-        // Đăng ký các sự kiện
+        // Register event listeners
         registerEventListeners();
 
         // Load initial data
         try {
-            nhanVienController.loadStaff();
+            controller.loadPhieuMuons();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Lỗi khi tải dữ liệu nhân viên: " + ex.getMessage(),
+                    "Lỗi khi tải dữ liệu phiếu mượn: " + ex.getMessage(),
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -89,7 +92,7 @@ public class AdminControlStaff extends JPanel {
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(WHITE);
 
-        buttonPanel = new JPanel(new GridLayout(1, 4, 10, 0));
+        buttonPanel = new JPanel(new GridLayout(1, 5, 10, 0));
         buttonPanel.setBackground(WHITE);
 
         searchPanel = new JPanel();
@@ -97,7 +100,7 @@ public class AdminControlStaff extends JPanel {
         searchPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
         // Initialize labels
-        titleLabel = new JLabel("Quản lý nhân viên");
+        titleLabel = new JLabel("Quản lý mượn / trả sách");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
         searchLabel = new JLabel("Tìm kiếm:");
@@ -114,16 +117,17 @@ public class AdminControlStaff extends JPanel {
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 10));
 
         // Initialize buttons
-        addStaffButton = createButton("Thêm nhân viên mới", PURPLE);
-        editStaffButton = createButton("Sửa nhân viên", ORANGE);
-        deleteStaffButton = createButton("Xóa nhân viên", RED);
+        loanButton = createButton("Mượn sách", PURPLE);
+        returnButton = createButton("Trả sách", GREEN);
+        editLoanButton = createButton("Sửa phiếu mượn", ORANGE);
+        deleteLoanButton = createButton("Xóa phiếu mượn", RED);
         reloadButton = createButton("Reload", BLUE);
         searchButton = createButton("Tìm", GREEN);
 
         // Initialize table
         String[] columnNames = {
-                "ID", "Họ và tên", "Giới tính", "Chức vụ",
-                "Email", "Số điện thoại", "Ngày vào làm", "Trạng thái"
+                "Mã phiếu", "Thành viên", "Ngày mượn", "Hạn trả",
+                "Ngày trả thực tế", "Trạng thái", "Sách", "Số lượng"
         };
 
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -133,16 +137,16 @@ public class AdminControlStaff extends JPanel {
             }
         };
 
-        staffTable = new JTable(tableModel);
-        staffTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        staffTable.setRowHeight(25);
-        staffTable.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        staffTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 10));
-        staffTable.setShowGrid(false);
-        staffTable.setIntercellSpacing(new Dimension(0, 0));
+        loanReturnTable = new JTable(tableModel);
+        loanReturnTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        loanReturnTable.setRowHeight(25);
+        loanReturnTable.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        loanReturnTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 10));
+        loanReturnTable.setShowGrid(false);
+        loanReturnTable.setIntercellSpacing(new Dimension(0, 0));
 
         // Set up alternating row colors
-        staffTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        loanReturnTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -150,13 +154,15 @@ public class AdminControlStaff extends JPanel {
                     c.setBackground(row % 2 == 0 ? WHITE : new Color(240, 240, 240));
                 }
 
-                // Apply special formatting for status column
-                if (column == 7 && value != null) {
+                // Format status column
+                if (column == 5 && value != null) {
                     String status = value.toString();
-                    if ("Đang làm".equals(status)) {
-                        c.setForeground(GREEN);
-                    } else if ("Tạm nghỉ".equals(status)) {
+                    if (status.equals("Đang mượn")) {
                         c.setForeground(ORANGE);
+                    } else if (status.equals("Đã trả")) {
+                        c.setForeground(GREEN);
+                    } else if (status.equals("Quá hạn")) {
+                        c.setForeground(RED);
                     } else {
                         c.setForeground(Color.BLACK);
                     }
@@ -168,7 +174,7 @@ public class AdminControlStaff extends JPanel {
             }
         });
 
-        tableScrollPane = new JScrollPane(staffTable);
+        tableScrollPane = new JScrollPane(loanReturnTable);
         tableScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         // Initialize context menu
@@ -209,9 +215,10 @@ public class AdminControlStaff extends JPanel {
         centerPanel.setBackground(WHITE);
 
         // Add buttons to button panel
-        buttonPanel.add(addStaffButton);
-        buttonPanel.add(editStaffButton);
-        buttonPanel.add(deleteStaffButton);
+        buttonPanel.add(loanButton);
+        buttonPanel.add(returnButton);
+        buttonPanel.add(editLoanButton);
+        buttonPanel.add(deleteLoanButton);
         buttonPanel.add(reloadButton);
 
         // Set up search panel
@@ -246,141 +253,123 @@ public class AdminControlStaff extends JPanel {
         add(mainPanel, BorderLayout.CENTER);
     }
 
-    // Getters for UI components
-    public JButton getAddStaffButton() {
-        return addStaffButton;
-    }
-    
-    public JButton getEditStaffButton() {
-        return editStaffButton;
-    }
-    
-    public JButton getDeleteStaffButton() {
-        return deleteStaffButton;
-    }
-    
-    public JButton getReloadButton() {
-        return reloadButton;
-    }
-
-    public JButton getSearchButton() {
-        return searchButton;
-    }
-
-    public JTextField getSearchField() {
-        return searchField;
-    }
-
-    public JLabel getNoDataLabel() {
-        return noDataLabel;
-    }
-
-    public JTable getStaffTable() {
-        return staffTable;
-    }
-
-    public DefaultTableModel getTableModel() {
-        return tableModel;
-    }
-    
-    public JMenuItem getAddMenuItem() {
-        return addMenuItem;
-    }
-    
-    public JMenuItem getEditMenuItem() {
-        return editMenuItem;
-    }
-    
-    public JMenuItem getDeleteMenuItem() {
-        return deleteMenuItem;
-    }
-    
-    public JPopupMenu getContextMenu() {
-        return contextMenu;
-    }
-    
-    public JScrollPane getTableScrollPane() {
-        return tableScrollPane;
-    }
-
     private void registerEventListeners() {
-        // Đăng ký sự kiện cho nút thêm nhân viên
-        addStaffButton.addActionListener(e -> {
-            FormAddStaff addStaffForm = new FormAddStaff();
-            addStaffForm.setVisible(true);
-            if (addStaffForm.isSuccessful()) {
-                try {
-                    nhanVienController.loadStaff();
-                } catch (SQLException ex) {
-                    JOptionPane.showMessageDialog(this,
-                            "Lỗi khi tải lại danh sách nhân viên: " + ex.getMessage(),
-                            "Lỗi",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        
-        // Đăng ký sự kiện cho nút sửa nhân viên
-        editStaffButton.addActionListener(e -> nhanVienController.editNhanVien());
-        
-        // Đăng ký sự kiện cho nút xóa nhân viên
-        deleteStaffButton.addActionListener(e -> nhanVienController.deleteNhanVien());
-        
-        // Đăng ký sự kiện cho nút tải lại
+        // Add action listeners to buttons
+        loanButton.addActionListener(e -> controller.showLoanForm());
+        returnButton.addActionListener(e -> controller.showReturnForm());
+        editLoanButton.addActionListener(e -> controller.editSelectedLoan());
+        deleteLoanButton.addActionListener(e -> controller.deletePhieuMuon());
         reloadButton.addActionListener(e -> {
             try {
-                nhanVienController.loadStaff();
+                controller.loadPhieuMuons();
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this,
-                        "Lỗi khi tải lại danh sách nhân viên: " + ex.getMessage(),
+                        "Lỗi khi tải lại dữ liệu: " + ex.getMessage(),
                         "Lỗi",
                         JOptionPane.ERROR_MESSAGE);
             }
         });
         
-        // Đăng ký sự kiện cho nút tìm kiếm
-        searchButton.addActionListener(e -> nhanVienController.searchNhanVien());
-        
-        // Đăng ký sự kiện nhấn Enter trên ô tìm kiếm
+        searchButton.addActionListener(e -> searchPhieuMuons());
+
+        // Add key listener to search field
         searchField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    searchButton.doClick();
+                    searchPhieuMuons();
                 }
             }
         });
-        
-        // Đăng ký sự kiện cho menu ngữ cảnh
-        staffTable.addMouseListener(new MouseAdapter() {
+
+        // Add mouse listener to table for context menu and double-click
+        loanReturnTable.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    showContextMenu(e);
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    controller.editSelectedLoan();
                 }
             }
-            
+
             @Override
             public void mousePressed(MouseEvent e) {
+                // Show context menu on right click
                 if (e.isPopupTrigger()) {
                     showContextMenu(e);
                 }
             }
-            
-            private void showContextMenu(MouseEvent e) {
-                int r = staffTable.rowAtPoint(e.getPoint());
-                if (r >= 0 && r < staffTable.getRowCount()) {
-                    staffTable.setRowSelectionInterval(r, r);
-                } else {
-                    staffTable.clearSelection();
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // Show context menu on right click
+                if (e.isPopupTrigger()) {
+                    showContextMenu(e);
                 }
-                contextMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+
+            private void showContextMenu(MouseEvent e) {
+                int row = loanReturnTable.rowAtPoint(e.getPoint());
+                if (row >= 0 && row < loanReturnTable.getRowCount()) {
+                    loanReturnTable.setRowSelectionInterval(row, row);
+                    contextMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
             }
         });
-        
-        // Đăng ký sự kiện cho các mục trong menu ngữ cảnh
-        addMenuItem.addActionListener(e -> addStaffButton.doClick());
-        editMenuItem.addActionListener(e -> editStaffButton.doClick());
-        deleteMenuItem.addActionListener(e -> deleteStaffButton.doClick());
+
+        // Add action listeners to context menu items
+        addMenuItem.addActionListener(e -> controller.showLoanForm());
+        editMenuItem.addActionListener(e -> controller.editSelectedLoan());
+        deleteMenuItem.addActionListener(e -> controller.deletePhieuMuon());
+
+        // Add component listener for resize events
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // Adjust table size when panel is resized
+                tableScrollPane.setPreferredSize(new Dimension(
+                        getWidth() - 40,
+                        getHeight() - 200
+                ));
+
+                // Adjust no data label position
+                noDataLabel.setBounds(
+                        loanReturnTable.getX() + (loanReturnTable.getWidth() - noDataLabel.getWidth()) / 2,
+                        loanReturnTable.getY() + (loanReturnTable.getHeight() - noDataLabel.getHeight()) / 2,
+                        noDataLabel.getWidth(),
+                        noDataLabel.getHeight()
+                );
+
+                revalidate();
+            }
+        });
+    }
+    
+    private void searchPhieuMuons() {
+        String keyword = searchField.getText().trim();
+        try {
+            controller.searchPhieuMuons(keyword);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Lỗi khi tìm kiếm: " + ex.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Getter methods for controller
+    public JTable getLoanReturnTable() {
+        return loanReturnTable;
+    }
+    
+    public DefaultTableModel getTableModel() {
+        return tableModel;
+    }
+    
+    public JLabel getNoDataLabel() {
+        return noDataLabel;
+    }
+    
+    public JTextField getSearchField() {
+        return searchField;
     }
 }
