@@ -328,19 +328,6 @@ public class AdminMainForm extends JFrame {
         return new ImageIcon(image);
     }
 
-    private class AdminControlReports extends JPanel {
-        public AdminControlReports() {
-            setLayout(new BorderLayout());
-            setBackground(WHITE);
-
-            JLabel titleLabel = new JLabel("Báo cáo và thống kê");
-            titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-            titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
-
-            add(titleLabel, BorderLayout.NORTH);
-        }
-    }
-
     // Need to import this for the circular avatar
     private static class BufferedImage extends java.awt.image.BufferedImage {
         public BufferedImage(int width, int height, int imageType) {
