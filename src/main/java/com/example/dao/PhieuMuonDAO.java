@@ -278,4 +278,129 @@ public class PhieuMuonDAO {
             }
         }
     }
+    
+    public boolean updatePhieuMuon(int maPhieu, Date ngayMuon, Date hanTra, 
+                               Date ngayTraThucTe, String trangThai, int soLuong) throws SQLException {
+        Connection conn = null;
+        PreparedStatement psGetOldInfo = null;
+        PreparedStatement psUpdatePhieuMuon = null;
+        PreparedStatement psUpdateSach = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DatabaseConnection.getConnection();
+            conn.setAutoCommit(false);
+            
+            // Lấy thông tin phiếu mượn hiện tại để tính toán số lượng sách cần cập nhật
+            String queryGetOldInfo = "SELECT SoLuong, TrangThai, MaSach FROM PhieuMuon WHERE MaPhieu = ?";
+            psGetOldInfo = conn.prepareStatement(queryGetOldInfo);
+            psGetOldInfo.setInt(1, maPhieu);
+            rs = psGetOldInfo.executeQuery();
+            
+            if (!rs.next()) {
+                throw new SQLException("Phiếu mượn không tồn tại!");
+            }
+            
+            int oldSoLuong = rs.getInt("SoLuong");
+            String oldTrangThai = rs.getString("TrangThai");
+            String maSach = rs.getString("MaSach");
+            
+            // Kiểm tra nếu phiếu đã ở trạng thái "Đã trả" thì không cho phép cập nhật
+            if ("Đã trả".equals(oldTrangThai)) {
+                throw new SQLException("Không thể cập nhật phiếu mượn đã ở trạng thái 'Đã trả'!");
+            }
+            
+            // Cập nhật phiếu mượn
+            String updatePhieuMuon = "UPDATE PhieuMuon SET NgayMuon = ?, HanTra = ?, " +
+                                   "NgayTraThucTe = ?, TrangThai = ?, SoLuong = ? " +
+                                   "WHERE MaPhieu = ?";
+            psUpdatePhieuMuon = conn.prepareStatement(updatePhieuMuon);
+            psUpdatePhieuMuon.setDate(1, ngayMuon);
+            psUpdatePhieuMuon.setDate(2, hanTra);
+            psUpdatePhieuMuon.setDate(3, ngayTraThucTe);
+            psUpdatePhieuMuon.setString(4, trangThai);
+            psUpdatePhieuMuon.setInt(5, soLuong);
+            psUpdatePhieuMuon.setInt(6, maPhieu);
+            psUpdatePhieuMuon.executeUpdate();
+            
+            // Tính toán sự thay đổi số lượng sách
+            int sachKhaDungDiff = 0;
+            
+            // Tính toán sự thay đổi số lượng sách
+            if (trangThai.equals("Đã trả")) {
+                // Đang mượn/Quá hạn -> Đã trả: tăng sách khả dụng
+                sachKhaDungDiff = oldSoLuong;
+                System.out.println("DEBUG: Trạng thái từ Đang mượn/Quá hạn -> Đã trả. Tăng KhaDung: " + oldSoLuong);
+            } else {
+                // Đang mượn/Quá hạn -> Đang mượn/Quá hạn: điều chỉnh theo sự thay đổi số lượng
+                sachKhaDungDiff = oldSoLuong - soLuong;
+                System.out.println("DEBUG: Trạng thái vẫn Đang mượn/Quá hạn. Thay đổi KhaDung: " + sachKhaDungDiff);
+            }
+            
+            if (sachKhaDungDiff != 0) {
+                String updateSach = "UPDATE Sach SET KhaDung = KhaDung + ? WHERE MaSach = ?";
+                psUpdateSach = conn.prepareStatement(updateSach);
+                psUpdateSach.setInt(1, sachKhaDungDiff);
+                psUpdateSach.setString(2, maSach);
+                psUpdateSach.executeUpdate();
+                System.out.println("DEBUG: Đã cập nhật KhaDung trong DB, thay đổi: " + sachKhaDungDiff);
+            } else {
+                System.out.println("DEBUG: Không cập nhật KhaDung trong DB vì sachKhaDungDiff = 0");
+            }
+            
+            // Commit transaction
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            // Rollback transaction nếu có lỗi
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    throw new SQLException("Lỗi khi rollback transaction: " + ex.getMessage());
+                }
+            }
+            throw e;
+        } finally {
+            // Đóng tất cả các tài nguyên
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (psGetOldInfo != null) try { psGetOldInfo.close(); } catch (SQLException e) { }
+            if (psUpdatePhieuMuon != null) try { psUpdatePhieuMuon.close(); } catch (SQLException e) { }
+            if (psUpdateSach != null) try { psUpdateSach.close(); } catch (SQLException e) { }
+            
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) { }
+            }
+        }
+    }
+    
+    public int getSoSachDangMuonCuaThanhVien(String maThanhVien, int maPhieuLoaiTru) throws SQLException {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DatabaseConnection.getConnection();
+            String query = "SELECT IFNULL(SUM(SoLuong), 0) AS TongSachDangMuon " +
+                         "FROM PhieuMuon " +
+                         "WHERE MaThanhVien = ? AND MaPhieu != ? " +
+                         "AND TrangThai IN ('Đang mượn', 'Quá hạn')";
+            ps = conn.prepareStatement(query);
+            ps.setString(1, maThanhVien);
+            ps.setInt(2, maPhieuLoaiTru);
+            rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("TongSachDangMuon");
+            }
+            return 0;
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (ps != null) try { ps.close(); } catch (SQLException e) { }
+            if (conn != null) try { conn.close(); } catch (SQLException e) { }
+        }
+    }
 }

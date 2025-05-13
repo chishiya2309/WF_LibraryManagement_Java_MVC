@@ -16,6 +16,8 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class PhieuMuonController {
     private AdminControlLoanAndReturn view;
@@ -156,10 +158,59 @@ public class PhieuMuonController {
         // Lấy ID của phiếu mượn đã chọn
         int maPhieu = (int) view.getTableModel().getValueAt(selectedRow, 0);
 
-        // Hiển thị form chỉnh sửa phiếu mượn
-        JOptionPane.showMessageDialog(view,
-                "Chức năng chỉnh sửa phiếu mượn sẽ được triển khai sau. Mã phiếu: " + maPhieu,
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE);
+        try {
+            // Lấy thông tin phiếu mượn
+            PhieuMuon phieuMuon = phieuMuonDAO.getPhieuMuonById(maPhieu);
+            
+            if (phieuMuon == null) {
+                JOptionPane.showMessageDialog(view,
+                        "Không tìm thấy thông tin phiếu mượn!",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Kiểm tra nếu phiếu mượn đã ở trạng thái "Đã trả"
+            if ("Đã trả".equals(phieuMuon.getTrangThai())) {
+                JOptionPane.showMessageDialog(view,
+                        "Không thể chỉnh sửa phiếu mượn đã ở trạng thái 'Đã trả'!",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            
+            // Chuyển đổi dữ liệu sang Map để truyền vào form
+            Map<String, Object> loanData = new HashMap<>();
+            loanData.put("MaPhieu", phieuMuon.getMaPhieu());
+            loanData.put("MaThanhVien", phieuMuon.getThanhVien().getMaThanhVien());
+            loanData.put("MaSach", phieuMuon.getSach().getMaSach());
+            loanData.put("NgayMuon", phieuMuon.getNgayMuon());
+            loanData.put("HanTra", phieuMuon.getHanTra());
+            loanData.put("NgayTraThucTe", phieuMuon.getNgayTraThucTe());
+            loanData.put("TrangThai", phieuMuon.getTrangThai());
+            loanData.put("SoLuong", phieuMuon.getSoLuong());
+            
+            // Hiển thị form chỉnh sửa
+            Frame owner = (Frame) SwingUtilities.getWindowAncestor(view);
+            com.example.view.FormEditLoansAndReturns editForm = new com.example.view.FormEditLoansAndReturns(owner, loanData);
+            editForm.setVisible(true);
+            
+            // Nếu đã chỉnh sửa thành công, tải lại dữ liệu
+            if (editForm.isSuccessful()) {
+                try {
+                    loadPhieuMuons();
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(view,
+                            "Lỗi khi tải lại dữ liệu phiếu mượn: " + e.getMessage(),
+                            "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(view,
+                    "Lỗi khi lấy thông tin phiếu mượn: " + e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 } 
