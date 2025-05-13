@@ -37,7 +37,6 @@ public class AdminControlLoanAndReturn extends JPanel {
     private JButton loanButton;
     private JButton returnButton;
     private JButton editLoanButton;
-    private JButton deleteLoanButton;
     private JButton reloadButton;
     private JButton searchButton;
 
@@ -48,7 +47,6 @@ public class AdminControlLoanAndReturn extends JPanel {
     private JPopupMenu contextMenu;
     private JMenuItem addMenuItem;
     private JMenuItem editMenuItem;
-    private JMenuItem deleteMenuItem;
 
     // Data access object
     private PhieuMuonDAO phieuMuonDAO;
@@ -120,7 +118,6 @@ public class AdminControlLoanAndReturn extends JPanel {
         loanButton = createButton("Mượn sách", PURPLE);
         returnButton = createButton("Trả sách", GREEN);
         editLoanButton = createButton("Sửa phiếu mượn", ORANGE);
-        deleteLoanButton = createButton("Xóa phiếu mượn", RED);
         reloadButton = createButton("Reload", BLUE);
         searchButton = createButton("Tìm", GREEN);
 
@@ -181,11 +178,9 @@ public class AdminControlLoanAndReturn extends JPanel {
         contextMenu = new JPopupMenu();
         addMenuItem = new JMenuItem("Thêm");
         editMenuItem = new JMenuItem("Chỉnh sửa");
-        deleteMenuItem = new JMenuItem("Xóa");
 
         contextMenu.add(addMenuItem);
         contextMenu.add(editMenuItem);
-        contextMenu.add(deleteMenuItem);
     }
 
     private JButton createButton(String text, Color bgColor) {
@@ -218,7 +213,6 @@ public class AdminControlLoanAndReturn extends JPanel {
         buttonPanel.add(loanButton);
         buttonPanel.add(returnButton);
         buttonPanel.add(editLoanButton);
-        buttonPanel.add(deleteLoanButton);
         buttonPanel.add(reloadButton);
 
         // Set up search panel
@@ -258,7 +252,6 @@ public class AdminControlLoanAndReturn extends JPanel {
         loanButton.addActionListener(e -> controller.showLoanForm());
         returnButton.addActionListener(e -> controller.showReturnForm());
         editLoanButton.addActionListener(e -> controller.editSelectedLoan());
-        deleteLoanButton.addActionListener(e -> controller.deletePhieuMuon());
         reloadButton.addActionListener(e -> {
             try {
                 controller.loadPhieuMuons();
@@ -319,7 +312,6 @@ public class AdminControlLoanAndReturn extends JPanel {
         // Add action listeners to context menu items
         addMenuItem.addActionListener(e -> controller.showLoanForm());
         editMenuItem.addActionListener(e -> controller.editSelectedLoan());
-        deleteMenuItem.addActionListener(e -> controller.deletePhieuMuon());
 
         // Add component listener for resize events
         addComponentListener(new ComponentAdapter() {

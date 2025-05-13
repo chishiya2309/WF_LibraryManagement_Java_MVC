@@ -7,9 +7,12 @@ import com.example.model.PhieuMuon;
 import com.example.model.Sach;
 import com.example.model.ThanhVien;
 import com.example.view.AdminControlLoanAndReturn;
+import com.example.view.MuonSach;
+import com.example.view.TraSach;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -64,11 +67,29 @@ public class PhieuMuonController {
         displayPhieuMuons(phieuMuons);
     }
 
-    public void deletePhieuMuon() {
+    public void showLoanForm() {
+        // Hiển thị form mượn sách
+        MuonSach muonSachForm = new MuonSach((Frame) SwingUtilities.getWindowAncestor(view));
+        muonSachForm.setVisible(true);
+        
+        // Nếu đã tạo phiếu mượn thành công, tải lại dữ liệu
+        if (muonSachForm.isSuccessful()) {
+            try {
+                loadPhieuMuons();
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(view,
+                        "Lỗi khi tải lại dữ liệu phiếu mượn: " + e.getMessage(),
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    public void showReturnForm() {
         int selectedRow = view.getLoanReturnTable().getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(view,
-                    "Vui lòng chọn phiếu mượn cần xóa!",
+                    "Vui lòng chọn phiếu mượn cần trả sách!",
                     "Thông báo",
                     JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -76,50 +97,50 @@ public class PhieuMuonController {
 
         // Lấy ID của phiếu mượn đã chọn
         int maPhieu = (int) view.getTableModel().getValueAt(selectedRow, 0);
-
-        int confirm = JOptionPane.showConfirmDialog(view,
-                "Bạn có chắc muốn xóa phiếu mượn có mã " + maPhieu + "?",
-                "Xác nhận xóa",
-                JOptionPane.YES_NO_OPTION);
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                boolean success = phieuMuonDAO.deletePhieuMuon(maPhieu);
-                if (success) {
+        
+        try {
+            // Lấy thông tin phiếu mượn
+            PhieuMuon phieuMuon = phieuMuonDAO.getPhieuMuonById(maPhieu);
+            
+            if (phieuMuon == null) {
+                JOptionPane.showMessageDialog(view,
+                        "Không tìm thấy thông tin phiếu mượn!",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Kiểm tra nếu phiếu mượn đã trả trước đó
+            if ("Đã trả".equals(phieuMuon.getTrangThai())) {
+                JOptionPane.showMessageDialog(view,
+                        "Phiếu mượn này đã được trả trước đó!",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            
+            // Hiển thị form trả sách
+            Frame owner = (Frame) SwingUtilities.getWindowAncestor(view);
+            TraSach traSachForm = new TraSach(owner, phieuMuon);
+            traSachForm.setVisible(true);
+            
+            // Nếu đã trả sách thành công, tải lại dữ liệu
+            if (traSachForm.isSuccessful()) {
+                try {
                     loadPhieuMuons();
+                } catch (SQLException e) {
                     JOptionPane.showMessageDialog(view,
-                            "Đã xóa phiếu mượn thành công!",
-                            "Thông báo",
-                            JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(view,
-                            "Không thể xóa phiếu mượn này!",
+                            "Lỗi khi tải lại dữ liệu phiếu mượn: " + e.getMessage(),
                             "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (SQLException e) {
-                JOptionPane.showMessageDialog(view,
-                        "Lỗi khi xóa phiếu mượn: " + e.getMessage(),
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
             }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(view,
+                    "Lỗi khi lấy thông tin phiếu mượn: " + e.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    public void showLoanForm() {
-        // Hiển thị form mượn sách
-        JOptionPane.showMessageDialog(view,
-                "Chức năng mượn sách sẽ được triển khai sau.",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public void showReturnForm() {
-        // Hiển thị form trả sách
-        JOptionPane.showMessageDialog(view,
-                "Chức năng trả sách sẽ được triển khai sau.",
-                "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void editSelectedLoan() {

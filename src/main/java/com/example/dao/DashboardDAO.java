@@ -28,7 +28,11 @@ public class DashboardDAO {
             if (rs.next()) {
                 stats.setTotalAvailableBooks(rs.getInt(1));
             }
-            DatabaseConnection.closeResources(rs, pstmt);
+            // Chỉ đóng rs và pstmt, giữ connection mở
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { }
+            rs = null;
+            pstmt = null;
 
             // Lấy tổng số thành viên
             query = "SELECT COUNT(*) FROM ThanhVien";
@@ -37,7 +41,11 @@ public class DashboardDAO {
             if (rs.next()) {
                 stats.setTotalMembers(rs.getInt(1));
             }
-            DatabaseConnection.closeResources(rs, pstmt);
+            // Chỉ đóng rs và pstmt, giữ connection mở
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { }
+            rs = null;
+            pstmt = null;
 
             // Lấy tổng số nhân viên
             query = "SELECT COUNT(*) FROM NhanVien";
@@ -46,31 +54,43 @@ public class DashboardDAO {
             if (rs.next()) {
                 stats.setTotalStaff(rs.getInt(1));
             }
-            DatabaseConnection.closeResources(rs, pstmt);
+            // Chỉ đóng rs và pstmt, giữ connection mở
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { }
+            rs = null;
+            pstmt = null;
 
             // Lấy số sách mượn hôm nay
             String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-            query = "SELECT COUNT(*) FROM PhieuMuon WHERE NgayMuon = ?";
+            query = "SELECT SUM(SoLuong) FROM PhieuMuon WHERE NgayMuon = ?";
             pstmt = conn.prepareStatement(query);
             pstmt.setString(1, currentDate);
             rs = pstmt.executeQuery();
             if (rs.next() && rs.getObject(1) != null) {
                 stats.setBooksBorrowedToday(rs.getInt(1));
             }
-            DatabaseConnection.closeResources(rs, pstmt);
+            // Chỉ đóng rs và pstmt, giữ connection mở
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { }
+            rs = null;
+            pstmt = null;
 
             // Lấy số sách trả hôm nay
-            query = "SELECT COUNT(*) FROM PhieuMuon WHERE NgayTraThucTe = ?";
+            query = "SELECT SUM(SoLuong) FROM PhieuMuon WHERE NgayTraThucTe = ?";
             pstmt = conn.prepareStatement(query);
             pstmt.setString(1, currentDate);
             rs = pstmt.executeQuery();
             if (rs.next() && rs.getObject(1) != null) {
                 stats.setBooksReturnedToday(rs.getInt(1));
             }
-            DatabaseConnection.closeResources(rs, pstmt);
+            // Chỉ đóng rs và pstmt, giữ connection mở
+            if (rs != null) try { rs.close(); } catch (SQLException e) { }
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { }
+            rs = null;
+            pstmt = null;
 
             // Lấy số sách quá hạn
-            query = "SELECT COUNT(*) FROM PhieuMuon WHERE TrangThai = 'Quá hạn'";
+            query = "SELECT SUM(SoLuong) FROM PhieuMuon WHERE TrangThai = 'Quá hạn'";
             pstmt = conn.prepareStatement(query);
             rs = pstmt.executeQuery();
             if (rs.next() && rs.getObject(1) != null) {
@@ -79,7 +99,14 @@ public class DashboardDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            DatabaseConnection.closeResources(rs, pstmt);
+            // Đóng tất cả các tài nguyên trong finally
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return stats;
     }

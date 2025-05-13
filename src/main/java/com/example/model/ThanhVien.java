@@ -99,4 +99,9 @@ public class ThanhVien {
     public void setTrangThai(String trangThai) {
         TrangThai = trangThai;
     }
+
+    @Override
+    public String toString() {
+        return MaThanhVien + " - " + HoTen;
+    }
 }

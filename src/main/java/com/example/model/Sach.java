@@ -107,4 +107,9 @@ public class Sach {
     public void setViTri(String viTri) {
         ViTri = viTri;
     }
+
+    @Override
+    public String toString() {
+        return MaSach + " - " + TenSach;
+    }
 }

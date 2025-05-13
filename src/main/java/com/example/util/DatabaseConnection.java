@@ -7,38 +7,36 @@ public class DatabaseConnection {
     private static final String USER = "root";
     private static final String PASSWORD = "";
     
-    private static Connection connection = null;
-    
     public static Connection getConnection() {
         try {
-            if (connection == null || connection.isClosed()) {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            }
-            return connection;
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
     
-    public static void closeConnection() {
+    public static void closeConnection(Connection conn) {
         try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
     
-    public static void closeResources(ResultSet rs, PreparedStatement pstmt) {
+    public static void closeResources(ResultSet rs, PreparedStatement pstmt, Connection conn) {
         try {
             if (rs != null) {
                 rs.close();
             }
             if (pstmt != null) {
                 pstmt.close();
+            }
+            if (conn != null) {
+                conn.close();
             }
         } catch (SQLException e) {
             e.printStackTrace();
